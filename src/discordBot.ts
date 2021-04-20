@@ -53,12 +53,6 @@ export default function discordBot(db: sqlite.Database) {
             process.exit();
         })
 
-    async function loop() {
-        console.log(" > Running loop . . .".yellow);
-        // loop.
-        setTimeout(loop, 300000);
-    }
-
     client.login(settings.Bot.Token);
 
     return client;
