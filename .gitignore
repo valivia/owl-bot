@@ -2,4 +2,7 @@ database.db
 node_modules
 settings.json
 settings2.json
+tsconfig.json
+tslint.sjon
 *.js
+.gitignore
