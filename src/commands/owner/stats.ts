@@ -1,4 +1,4 @@
-import { Client, MessageEmbed, User } from "discord.js";
+import { Client, GuildMember, MessageEmbed, User } from "discord.js";
 import moment from "moment";
 import { Iresponse } from "../../interfaces";
 
@@ -14,13 +14,12 @@ module.exports = {
     slash: false,
 
 
-    async execute(author: User, undefined: undefined, client: Client): Promise<Iresponse> {
-        if (author.user !== undefined) {
-            author = author.user
-        }
+    async execute(author: User | GuildMember, _undefined: undefined, client: Client): Promise<Iresponse> {
+        if ("user" in author) author = author.user
+
         const embed = new MessageEmbed()
             .addFields(
-                { name: "Users", value: await client.users.cache.size, inline: true },
+                { name: "Users", value: client.users.cache.size, inline: true },
                 { name: "Servers", value: client.guilds.cache.size, inline: true },
                 { name: "Channels", value: client.channels.cache.size, inline: true },
             )

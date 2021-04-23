@@ -1,0 +1,67 @@
+import { Client, GuildMember, MessageEmbed } from "discord.js";
+import moment from "moment";
+import { Iresponse } from "../../interfaces";
+
+module.exports = {
+    name: "warnings",
+    aliases: ["warns"],
+    description: "shows a user's warnings",
+    example: "@valivia",
+    group: "moderator",
+
+    guildOnly: true,
+    adminOnly: false,
+    slash: true,
+
+    args: [
+        {
+            "type": "user",
+            "name": "member",
+            "description": "which user's warnings to display.",
+            "default": false,
+            "required": true
+        }
+    ],
+
+    throttling: {
+        duration: 30,
+        usages: 3,
+    },
+
+    async execute(author: GuildMember, { member }: { member: GuildMember }, client: Client): Promise<Iresponse> {
+        let query = "SELECT * FROM Warnings WHERE `UserID` = ? AND GuildID = ? ORDER BY `Date` ASC";
+        let conn = client.conn;
+        try {
+            // Get from DB.
+            let warnings = await conn.query(query, [member.id, member.guild.id]);
+
+            // Vars.
+            let x = 0;
+            let warns = [];
+            // Loop through warnings
+            for (let warning of warnings) {
+                x++
+                // Get time.
+                let date = moment(warning.Date).fromNow();
+                // Add warning to the list.
+                warns.push({ name: `${x}`, value: `**mod:** <@!${warning.ModID}>\n **reason:** ${warning.Reason}\n **Date:** ${date}` })
+
+            }
+            // Make embed.
+            let embed = new MessageEmbed()
+                .setAuthor(`${member.user.tag} has ${warnings.length} warnings.`, member.user.avatarURL() as string)
+                .setColor(5362138)
+                .setTimestamp()
+                .setFooter(`${author.user.tag} - <@!${author.id}>`);
+
+            // Add warnings to embed or say there are none.
+            warns.length !== 0 ? embed.addFields(warns) : embed.setDescription("This user has no warnings.");
+
+            // Send embed.
+            return { type: "embed", content: embed };
+        } catch (e) {
+            console.log(e);
+            return { type: "text", content: "an error occured" };
+        }
+    },
+};

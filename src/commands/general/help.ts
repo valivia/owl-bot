@@ -1,4 +1,4 @@
-import { Client, GuildMember, Message, MessageEmbed, User } from "discord.js";
+import { Client, MessageEmbed, User } from "discord.js";
 import { Options } from "../../../settings.json";
 import { ICommands, Iresponse } from "../../interfaces";
 

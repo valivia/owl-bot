@@ -1,107 +1,102 @@
 import colors from "colors";
 colors.enable();
 
-import { Client, Collection, Guild, GuildMember, Message, User } from "discord.js";
+import { Client, Collection, GuildMember, User } from "discord.js";
 import fs from "fs";
 import { ICommands, Iresponse } from "../interfaces";
 import settings from "../../settings.json";
-import { getMember, getUser } from "./modules";
+import { defaultErr, getChannel, getCommand, getMember, getRole, getUser } from "./modules";
 const options = settings.Options;
 
 export async function getCommands(client: Client) {
     client.commands = new Collection();
     let conn = client.conn;
     try {
-        fs.readdir(`./src/commands/`, async (err, folders) => {
-            if (err) { console.log(`${err}`.red); }
-            // Loop through folders.
-            for (const folder of folders) {
-                // Get all files in folder.
-                const commandFiles = fs.readdirSync(`./src/commands/${folder}`).filter(file => file.endsWith(".js"));
-                // Loop through files.
-                for (const file of commandFiles) {
-                    // Get file.
-                    const command = await import(`../commands/${folder}/${file}`) as ICommands;
-                    if (command == undefined) { continue };
+        // get folders.
+        let folders = await fs.readdirSync("./src/commands/");
+        // Loop through folders.
+        for (const folder of folders) {
+            // Get all files in folder.
+            const commandFiles = fs.readdirSync(`./src/commands/${folder}`).filter(file => file.endsWith(".js"));
+            // Loop through files.
+            for (const file of commandFiles) {
+                // Get file.
+                const command = await import(`../commands/${folder}/${file}`) as ICommands;
+                if (command == undefined) { continue };
 
-                    // search for commands with same name.
-                    let cmd = client.commands.get(command.name) as ICommands
-                    let cmdAlias = client.commands.find((cmd: { aliases: string | string[]; }) => cmd.aliases && cmd.aliases.includes(command.name)) as ICommands
+                // search for commands with same name.
+                let cmd = getCommand(client, command.name);
 
-                    // throw err.
-                    if (cmd !== undefined || cmdAlias !== undefined) {
-                        console.log(`duplicate commands with name: ${command.name}`.red.bold);
-                        process.exit();
-                    }
-
-                    // loop through arguments.
-                    for (const type in command.args) {
-                        let x;
-                        // set int of type;
-                        switch (command.args[type].type) {
-                            case "string": x = 3; break;
-                            case "integer": x = 4; break;
-                            case "boolean": x = 5; break;
-                            case "user": x = 6; break;
-                            case "channel": x = 7; break;
-                            case "role": x = 8; break;
-                            default: {
-                                console.log(`${command.args[type].type} is an invalid arg type at ${command.name}`.red.bold);
-                                process.exit();
-                            }
-                        }
-                        command.args[type].type = x
-                    }
-                    // Get command from db.
-                    let query = await conn.query("SELECT * FROM Commands WHERE Name = ?", command.name);
-                    query = query[0];
-
-                    if (query === undefined && command.slash) {
-                        client.api.applications(client.user.id).commands.post({
-                            data: {
-                                name: command.name,
-                                description: command.description,
-                                options: command.args
-                            }
-                        });
-                        console.log(`${command.name} has been added as slash command.`)
-                    }
-
-                    // Insert command into db if not there yet.
-                    await conn.query("INSERT IGNORE INTO Commands (Name, Disabled, `Group`) VALUES (?,?,?)", [command.name, false, command.group]).catch((error) => {
-                        console.error(error);
-                    });
-                    // Set disable status of command.
-                    command.disabled = query?.Disabled ? true : false;
-                    // Add command to client.
-                    client.commands.set(command.name, command);
-                    // Log.
-                    console.log(" > Command added: ".magenta + `${command.disabled ? command.name.red : command.name.green}`);
+                // throw err.
+                if (cmd !== undefined) {
+                    console.log(`duplicate commands with name: ${command.name}`.red.bold);
+                    process.exit();
                 }
+
+                // loop through arguments.
+                for (const type in command.args) {
+                    let x;
+                    // set int of type;
+                    switch (command.args[type].type) {
+                        case "string": x = 3; break;
+                        case "integer": x = 4; break;
+                        case "boolean": x = 5; break;
+                        case "user": x = 6; break;
+                        case "channel": x = 7; break;
+                        case "role": x = 8; break;
+                        default: {
+                            console.log(`${command.args[type].type} is an invalid arg type at ${command.name}`.red.bold);
+                            process.exit();
+                        }
+                    }
+                    command.args[type].type = x
+                }
+                // Get command from db.
+                let query = await conn.query("SELECT * FROM Commands WHERE Name = ?", command.name);
+                query = query[0];
+
+                if (query === undefined && command.slash) {
+                    client.api.applications(client.user.id).commands.post({
+                        data: {
+                            name: command.name,
+                            description: command.description,
+                            options: command.args
+                        }
+                    });
+                    console.log(`${command.name} has been added as slash command.`)
+                }
+
+                // Insert command into db if not there yet.
+                await conn.query("INSERT IGNORE INTO Commands (Name, Disabled, `Group`) VALUES (?,?,?)", [command.name, false, command.group]).catch((error) => {
+                    console.error(error);
+                });
+                // Set disable status of command.
+                command.disabled = query?.Disabled ? true : false;
+                // Add command to client.
+                client.commands.set(command.name, command);
+                // Log.
+                console.log(" > Command added: ".magenta + `${command.disabled ? command.name.red : command.name.green}`);
             }
-        });
+        }
     } catch (err) {
         throw err;
     }
 }
 
-export async function runCommand(user: GuildMember | User, commandName: string, args: object[], client: Client): Promise<Iresponse> {
+export async function runCommand(user: GuildMember | User, commandName: string, args: string[], client: Client): Promise<Iresponse> {
     // Try to find the command.
-    let cmd = client.commands.get(commandName) as ICommands
-    let cmdAlias = client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName)) as ICommands
-    // Define command.
-    const command = cmdAlias !== undefined ? cmdAlias : (cmd !== undefined ? cmd : undefined);
+    let command = getCommand(client, commandName);
 
     // Check if command exists.
-    if (command === undefined) { return { type: "disabled", content: "command doesnt exist" } } // note
+    if (command === undefined) { return { type: "disabled", content: "command doesnt exist" } }
 
     // check if in guild.
-    if (command.guildOnly && user.guild == undefined) {
+    if (command.guildOnly && !("user" in user)) {
         // Return error.
         return { type: "content", content: "This command is limited to servers." }
     }
 
-    let guild: Guild = user.guild;
+    let guild = "user" in user ? user.guild : undefined;
 
     // check if admin command.
     if (command.adminOnly && user.id !== options.owner) {
@@ -143,11 +138,13 @@ export async function runCommand(user: GuildMember | User, commandName: string, 
                 break;
             }
             case 7: {
-                value = guild.channels.cache.get(input);
+                if (guild === undefined) { return defaultErr; }
+                value = await getChannel(client, guild.id, input);
                 break;
             }
             case 8: {
-                value = guild.roles.cache.get(input);
+                if (guild === undefined) { return defaultErr; }
+                value = getRole(client, guild.id, input);
                 break;
             }
             default: throw "invalid type."
