@@ -21,19 +21,27 @@ module.exports = {
         duration: 30,
         usages: 3,
     },
-    execute(msg, args, db) {
+    execute(msg, args, conn) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            const pingedUser = args[0];
-            let userChannel = yield db.get("SELECT * FROM `VoiceChannels` WHERE `UserID` = ?", msg.author.id);
-            // Check if user has a vc.
-            if (userChannel == undefined) {
-                return msg.reply("You dont have an active private voicechat");
+            try {
+                const pingedUser = args[0];
+                let userChannel = yield conn.query("SELECT * FROM `VoiceChannels` WHERE `UserID` = ?", msg.author.id);
+                // Check if user has a vc.
+                if (userChannel == undefined) {
+                    return msg.reply("You dont have an active private voicechat");
+                }
+                if ((_a = msg.guild) === null || _a === void 0 ? void 0 : _a.members.cache.get(pingedUser.id)) {
+                    // Make vc private.
+                    yield conn.query("UPDATE `VoiceChannels` SET Open = 0 WHERE `UserID` = ?", msg.author.id);
+                }
+                return;
             }
-            if ((_a = msg.guild) === null || _a === void 0 ? void 0 : _a.members.cache.get(pingedUser.id))
-                // Make vc private.
-                yield db.run("UPDATE `VoiceChannels` SET Open = 0 WHERE `UserID` = ?", msg.author.id);
+            catch (e) {
+                console.log(e);
+                return msg.reply("an error occured");
+            }
         });
     },
 };
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoidHJhbnNmZXIuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJ0cmFuc2Zlci50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7OztBQUVBLE1BQU0sQ0FBQyxPQUFPLEdBQUc7SUFDYixJQUFJLEVBQUUsVUFBVTtJQUVoQixPQUFPLEVBQUUsQ0FBQyxFQUFFLENBQUM7SUFDYixXQUFXLEVBQUUsb0JBQW9CO0lBQ2pDLFFBQVEsRUFBRSxDQUFDLEVBQUUsQ0FBQztJQUNkLEtBQUssRUFBRSxJQUFJO0lBQ1gsU0FBUyxFQUFFLElBQUk7SUFDZixRQUFRLEVBQUUsSUFBSTtJQUVkLFVBQVUsRUFBRTtRQUNSLFFBQVEsRUFBRSxFQUFFO1FBQ1osTUFBTSxFQUFFLENBQUM7S0FDWjtJQUVLLE9BQU8sQ0FBQyxHQUFZLEVBQUUsSUFBYyxFQUFFLEVBQVk7OztZQUNwRCxNQUFNLFVBQVUsR0FBUyxJQUFJLENBQUMsQ0FBQyxDQUFDLENBQUM7WUFDakMsSUFBSSxXQUFXLEdBQUcsTUFBTSxFQUFFLENBQUMsR0FBRyxDQUFDLGtEQUFrRCxFQUFFLEdBQUcsQ0FBQyxNQUFNLENBQUMsRUFBRSxDQUFDLENBQUE7WUFDakcsMEJBQTBCO1lBQzFCLElBQUksV0FBVyxJQUFJLFNBQVMsRUFBRTtnQkFDMUIsT0FBTyxHQUFHLENBQUMsS0FBSyxDQUFDLDJDQUEyQyxDQUFDLENBQUE7YUFDaEU7WUFFRCxVQUFJLEdBQUcsQ0FBQyxLQUFLLDBDQUFFLE9BQU8sQ0FBQyxLQUFLLENBQUMsR0FBRyxDQUFDLFVBQVUsQ0FBQyxFQUFFO2dCQUU5QyxtQkFBbUI7Z0JBQ25CLE1BQU0sRUFBRSxDQUFDLEdBQUcsQ0FBQyx3REFBd0QsRUFBRSxHQUFHLENBQUMsTUFBTSxDQUFDLEVBQUUsQ0FBQyxDQUFDOztLQUN6RjtDQUNKLENBQUMifQ==
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoidHJhbnNmZXIuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJ0cmFuc2Zlci50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7OztBQUVBLE1BQU0sQ0FBQyxPQUFPLEdBQUc7SUFDYixJQUFJLEVBQUUsVUFBVTtJQUVoQixPQUFPLEVBQUUsQ0FBQyxFQUFFLENBQUM7SUFDYixXQUFXLEVBQUUsb0JBQW9CO0lBQ2pDLFFBQVEsRUFBRSxDQUFDLEVBQUUsQ0FBQztJQUNkLEtBQUssRUFBRSxJQUFJO0lBQ1gsU0FBUyxFQUFFLElBQUk7SUFDZixRQUFRLEVBQUUsSUFBSTtJQUVkLFVBQVUsRUFBRTtRQUNSLFFBQVEsRUFBRSxFQUFFO1FBQ1osTUFBTSxFQUFFLENBQUM7S0FDWjtJQUVLLE9BQU8sQ0FBQyxHQUFZLEVBQUUsSUFBYyxFQUFFLElBQWdCOzs7WUFDeEQsSUFBSTtnQkFDQSxNQUFNLFVBQVUsR0FBRyxJQUFJLENBQUMsQ0FBQyxDQUFTLENBQUM7Z0JBQ25DLElBQUksV0FBVyxHQUFHLE1BQU0sSUFBSSxDQUFDLEtBQUssQ0FBQyxrREFBa0QsRUFBRSxHQUFHLENBQUMsTUFBTSxDQUFDLEVBQUUsQ0FBQyxDQUFBO2dCQUNyRywwQkFBMEI7Z0JBQzFCLElBQUksV0FBVyxJQUFJLFNBQVMsRUFBRTtvQkFDMUIsT0FBTyxHQUFHLENBQUMsS0FBSyxDQUFDLDJDQUEyQyxDQUFDLENBQUE7aUJBQ2hFO2dCQUVELFVBQUksR0FBRyxDQUFDLEtBQUssMENBQUUsT0FBTyxDQUFDLEtBQUssQ0FBQyxHQUFHLENBQUMsVUFBVSxDQUFDLEVBQUUsR0FBRztvQkFFN0MsbUJBQW1CO29CQUNuQixNQUFNLElBQUksQ0FBQyxLQUFLLENBQUMsd0RBQXdELEVBQUUsR0FBRyxDQUFDLE1BQU0sQ0FBQyxFQUFFLENBQUMsQ0FBQztpQkFDN0Y7Z0JBQ0QsT0FBTzthQUNWO1lBQUMsT0FBTyxDQUFDLEVBQUU7Z0JBQ1IsT0FBTyxDQUFDLEdBQUcsQ0FBQyxDQUFDLENBQUMsQ0FBQztnQkFDZixPQUFPLEdBQUcsQ0FBQyxLQUFLLENBQUMsa0JBQWtCLENBQUMsQ0FBQzthQUN4Qzs7S0FDSjtDQUNKLENBQUMifQ==

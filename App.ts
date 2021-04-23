@@ -1,11 +1,7 @@
-import { open } from "sqlite";
-import sqlite3 from "sqlite3";
 import disc from "./src/discordBot";
+import db from "mariadb";
+import settings from "./settings.json"
 
-open({
-  driver: sqlite3.Database,
-  filename: "./database.db"
-
-}).then(async (db) => {
-  disc(db);
-});
+db.createConnection(settings.db).then(conn => {
+    disc(conn);
+})

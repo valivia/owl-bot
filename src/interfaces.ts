@@ -1,20 +1,36 @@
-import { Message } from "discord.js";
-import { Database } from "sqlite";
+import { Client, GuildMember, User } from "discord.js";
 
 export interface ICommands {
-    adminOnly: boolean;
-    aliases: string[];
     name: string;
-    required: boolean;
-    example: string;
-    guildOnly: boolean;
-    group: string;
+    aliases: string[];
     description: string;
-    throttling: Ithrottling;
+    example: string;
+    group: string;
+
+    guildOnly: boolean;
+    adminOnly: boolean;
     disabled?: boolean;
-    execute(msg: Message, args?: String[], db?: Database): boolean;
+    slash: boolean;
+
+    args: Iarguments[];
+
+    throttling: Ithrottling;
+
+    execute(member: GuildMember | User, args?: {}, client?: Client): Promise <Iresponse>;
+}
+
+export interface Iarguments {
+    type: string | number;
+    name: string;
+    description: string;
+    default: boolean | string;
+    required: boolean;
 }
 export interface Ithrottling {
     duration: number;
     usages: number;
+}
+export interface Iresponse {
+    type: string;
+    content: string | {}
 }

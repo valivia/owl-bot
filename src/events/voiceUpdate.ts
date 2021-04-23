@@ -1,14 +1,14 @@
-import { Client, Message, PartialMessage, User, VoiceState } from "discord.js";
+import { Client, VoiceState } from "discord.js";
 import logHandler from "../middleware/logHandler";
 
-export const name =  "voiceStateUpdate";
+export const name = "voiceStateUpdate";
 
 export default function voiceUpdate(client: Client) {
 
     return async (oldState: VoiceState, newState: VoiceState) => {
         try {
             const query = `
-                SELECT VCMembers.UserID, VCMembers.ChannelID, Open, VoiceCHannels.UserID AS OwnerID
+                SELECT VCMembers.UserID, VCMembers.ChannelID, Open, VoiceChannels.UserID AS OwnerID
                 FROM VCMembers
                 INNER JOIN VoiceChannels ON VoiceChannels.ChannelID = VCMembers.ChannelID
                 WHERE VCMembers.UserID = ?
@@ -17,9 +17,10 @@ export default function voiceUpdate(client: Client) {
             // Check if user left a vc.
             if (newState.channelID !== oldState.channelID) {
                 // Define db.
-                const db = client.db;
+                let conn = client.conn;
                 // Query db for user priv room data.
-                const userChannel = await db.get(query, newState.member?.id)
+                let userChannel = await conn.query(query, newState.member?.id);
+                userChannel = userChannel[0]
                 // Check if user is part of priv room.
                 if (userChannel == undefined) {
                     return;
@@ -33,18 +34,19 @@ export default function voiceUpdate(client: Client) {
                 // Check if user owns a room.
                 if (userChannel.UserID == userChannel.OwnerID) {
                     // Delete user from vc list.
-                    db.run("DELETE FROM VCMembers WHERE UserID = ?", oldState.member?.id);
+                    (await conn).query("DELETE FROM VCMembers WHERE UserID = ?", oldState.member?.id);
                     // Query db for new owner.
-                    let newOwner = await db.get("SELECT * FROM VCMembers WHERE ChannelID = ? ORDER BY Date ASC;", userChannel.ChannelID);
+                    let newOwner = await conn.query("SELECT * FROM VCMembers WHERE ChannelID = ? ORDER BY Date ASC;", userChannel.ChannelID);
+                    newOwner = newOwner[0];
                     // Check if there is a replacement owner.
                     if (newOwner == undefined) {
                         // Reset vc.
                         console.log("no replacement owner, resetting vc.")
-                        return await db.run("UPDATE VoiceChannels SET UserID = NULL, Date = NULL, Open = 1 WHERE UserID = ?", oldState.member?.id);
+                        return await conn.query("UPDATE VoiceChannels SET UserID = NULL, Date = NULL, Open = 1 WHERE UserID = ?", oldState.member?.id);
                     } else {
                         // Assign vc to new owner.
                         console.log("replacement owner found")
-                        return await db.run("UPDATE VoiceChannels SET UserID = ? WHERE ChannelID = ?", [newOwner.UserID, userChannel.ChannelID]);
+                        return await conn.query("UPDATE VoiceChannels SET UserID = ? WHERE ChannelID = ?", [newOwner.UserID, userChannel.ChannelID]);
                     }
                 }
             }

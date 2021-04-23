@@ -2,3 +2,4 @@ database.db
 node_modules
 settings.json
 settings2.json
+*.js

@@ -12,36 +12,53 @@ Object.defineProperty(exports, "__esModule", { value: true });
 module.exports = {
     name: "disband",
     aliases: [""],
-    description: "disband personal vc",
-    examples: [""],
-    group: "vc",
+    description: "creates a new priv room.",
+    examples: ["create myPrivateRoom"],
+    group: "moderator",
     guildOnly: true,
+    adminOnly: false,
+    slash: true,
+    args: [
+        {
+            "type": "string",
+            "name": "channelName",
+            "description": "Name of the channel",
+            "default": false,
+            "required": true
+        }
+    ],
     throttling: {
         duration: 30,
         usages: 3,
     },
-    execute(msg, _args, db) {
+    execute(msg, _args, conn) {
         var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
-            // return console.log(msg.member?.voice.channel.members);
-            let userChannel = yield db.get("SELECT * FROM `VoiceChannels` WHERE `UserID` = ?", msg.author.id);
-            // Check if user has a vc.
-            if (userChannel == undefined) {
-                return msg.reply("You dont have an active private voicechat");
+            try {
+                let userChannel = yield conn.query("SELECT * FROM `VoiceChannels` WHERE `UserID` = ?", msg.author.id);
+                userChannel = userChannel[0];
+                // Check if user has a vc.
+                if (userChannel == undefined) {
+                    return msg.reply("You dont have an active private voicechat");
+                }
+                // delete vc from db.
+                yield conn.query("UPDATE `VoiceChannels` SET UserID = NULL, Date = NULL, Open = 1 WHERE `UserID` = ?", msg.author.id);
+                yield conn.query("DELETE FROM VCMembers WHERE ChannelID = ?", userChannel.ChannelID);
+                // Check if in vc.
+                if (((_a = msg.member) === null || _a === void 0 ? void 0 : _a.voice.channel) !== null && ((_b = msg.member) === null || _b === void 0 ? void 0 : _b.voice.channel.id) == userChannel.ChannelID) {
+                    // kick from vc
+                    (_c = msg.member) === null || _c === void 0 ? void 0 : _c.voice.channel.members.forEach(member => {
+                        member.voice.kick();
+                    });
+                }
+                // Send message
+                return msg.reply("voice channel disbanded");
             }
-            // delete vc from db.
-            yield db.run("UPDATE `VoiceChannels` SET UserID = NULL, Date = NULL, Open = 1 WHERE `UserID` = ?", msg.author.id);
-            yield db.run("DELETE FROM VCMembers WHERE ChannelID = ?", userChannel.ChannelID);
-            // Check if in vc.
-            if (((_a = msg.member) === null || _a === void 0 ? void 0 : _a.voice.channel) !== null && ((_b = msg.member) === null || _b === void 0 ? void 0 : _b.voice.channel.id) == userChannel.ChannelID) {
-                // kick from vc
-                (_c = msg.member) === null || _c === void 0 ? void 0 : _c.voice.channel.members.forEach(member => {
-                    member.voice.kick();
-                });
+            catch (e) {
+                console.log(e);
+                return msg.reply("an error occured");
             }
-            // Send message
-            return msg.reply("voice channel disbanded");
         });
     },
 };
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiZGlzYmFuZC5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbImRpc2JhbmQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7QUFFQSxNQUFNLENBQUMsT0FBTyxHQUFHO0lBQ2IsSUFBSSxFQUFFLFNBQVM7SUFFZixPQUFPLEVBQUUsQ0FBQyxFQUFFLENBQUM7SUFDYixXQUFXLEVBQUUscUJBQXFCO0lBQ2xDLFFBQVEsRUFBRSxDQUFDLEVBQUUsQ0FBQztJQUNkLEtBQUssRUFBRSxJQUFJO0lBQ1gsU0FBUyxFQUFFLElBQUk7SUFFZixVQUFVLEVBQUU7UUFDUixRQUFRLEVBQUUsRUFBRTtRQUNaLE1BQU0sRUFBRSxDQUFDO0tBQ1o7SUFFSyxPQUFPLENBQUMsR0FBWSxFQUFFLEtBQWUsRUFBRSxFQUFZOzs7WUFDckQseURBQXlEO1lBQ3pELElBQUksV0FBVyxHQUFHLE1BQU0sRUFBRSxDQUFDLEdBQUcsQ0FBQyxrREFBa0QsRUFBRSxHQUFHLENBQUMsTUFBTSxDQUFDLEVBQUUsQ0FBQyxDQUFBO1lBQ2pHLDBCQUEwQjtZQUMxQixJQUFJLFdBQVcsSUFBSSxTQUFTLEVBQUU7Z0JBQzFCLE9BQU8sR0FBRyxDQUFDLEtBQUssQ0FBQywyQ0FBMkMsQ0FBQyxDQUFBO2FBQ2hFO1lBRUQscUJBQXFCO1lBQ3JCLE1BQU0sRUFBRSxDQUFDLEdBQUcsQ0FBQyxvRkFBb0YsRUFBRSxHQUFHLENBQUMsTUFBTSxDQUFDLEVBQUUsQ0FBQyxDQUFDO1lBQ2xILE1BQU0sRUFBRSxDQUFDLEdBQUcsQ0FBQywyQ0FBMkMsRUFBRSxXQUFXLENBQUMsU0FBUyxDQUFDLENBQUE7WUFFaEYsa0JBQWtCO1lBQ2xCLElBQUksT0FBQSxHQUFHLENBQUMsTUFBTSwwQ0FBRSxLQUFLLENBQUMsT0FBTyxNQUFLLElBQUksSUFBSSxPQUFBLEdBQUcsQ0FBQyxNQUFNLDBDQUFFLEtBQUssQ0FBQyxPQUFPLENBQUMsRUFBRSxLQUFJLFdBQVcsQ0FBQyxTQUFTLEVBQUU7Z0JBQzdGLGVBQWU7Z0JBQ2YsTUFBQSxHQUFHLENBQUMsTUFBTSwwQ0FBRSxLQUFLLENBQUMsT0FBTyxDQUFDLE9BQU8sQ0FBQyxPQUFPLENBQUMsTUFBTSxDQUFDLEVBQUU7b0JBQy9DLE1BQU0sQ0FBQyxLQUFLLENBQUMsSUFBSSxFQUFFLENBQUM7Z0JBQ3hCLENBQUMsRUFBRTthQUNOO1lBQ0QsZUFBZTtZQUNmLE9BQU8sR0FBRyxDQUFDLEtBQUssQ0FBQyx5QkFBeUIsQ0FBQyxDQUFDOztLQUMvQztDQUNKLENBQUMifQ==
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiZGlzYmFuZC5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbImRpc2JhbmQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7QUFFQSxNQUFNLENBQUMsT0FBTyxHQUFHO0lBQ2IsSUFBSSxFQUFFLFNBQVM7SUFDZixPQUFPLEVBQUUsQ0FBQyxFQUFFLENBQUM7SUFDYixXQUFXLEVBQUUsMEJBQTBCO0lBQ3ZDLFFBQVEsRUFBRSxDQUFDLHNCQUFzQixDQUFDO0lBQ2xDLEtBQUssRUFBRSxXQUFXO0lBRWxCLFNBQVMsRUFBRSxJQUFJO0lBQ2YsU0FBUyxFQUFFLEtBQUs7SUFDaEIsS0FBSyxFQUFFLElBQUk7SUFFWCxJQUFJLEVBQUU7UUFDRjtZQUNJLE1BQU0sRUFBRSxRQUFRO1lBQ2hCLE1BQU0sRUFBRSxhQUFhO1lBQ3JCLGFBQWEsRUFBRSxxQkFBcUI7WUFDcEMsU0FBUyxFQUFFLEtBQUs7WUFDaEIsVUFBVSxFQUFFLElBQUk7U0FDbkI7S0FDSjtJQUVELFVBQVUsRUFBRTtRQUNSLFFBQVEsRUFBRSxFQUFFO1FBQ1osTUFBTSxFQUFFLENBQUM7S0FDWjtJQUVLLE9BQU8sQ0FBQyxHQUFZLEVBQUUsS0FBZSxFQUFFLElBQWdCOzs7WUFDekQsSUFBSTtnQkFDQSxJQUFJLFdBQVcsR0FBRyxNQUFNLElBQUksQ0FBQyxLQUFLLENBQUMsa0RBQWtELEVBQUUsR0FBRyxDQUFDLE1BQU0sQ0FBQyxFQUFFLENBQUMsQ0FBQTtnQkFDckcsV0FBVyxHQUFHLFdBQVcsQ0FBQyxDQUFDLENBQUMsQ0FBQztnQkFFN0IsMEJBQTBCO2dCQUMxQixJQUFJLFdBQVcsSUFBSSxTQUFTLEVBQUU7b0JBQzFCLE9BQU8sR0FBRyxDQUFDLEtBQUssQ0FBQywyQ0FBMkMsQ0FBQyxDQUFBO2lCQUNoRTtnQkFFRCxxQkFBcUI7Z0JBQ3JCLE1BQU0sSUFBSSxDQUFDLEtBQUssQ0FBQyxvRkFBb0YsRUFBRSxHQUFHLENBQUMsTUFBTSxDQUFDLEVBQUUsQ0FBQyxDQUFDO2dCQUN0SCxNQUFNLElBQUksQ0FBQyxLQUFLLENBQUMsMkNBQTJDLEVBQUUsV0FBVyxDQUFDLFNBQVMsQ0FBQyxDQUFBO2dCQUVwRixrQkFBa0I7Z0JBQ2xCLElBQUksT0FBQSxHQUFHLENBQUMsTUFBTSwwQ0FBRSxLQUFLLENBQUMsT0FBTyxNQUFLLElBQUksSUFBSSxPQUFBLEdBQUcsQ0FBQyxNQUFNLDBDQUFFLEtBQUssQ0FBQyxPQUFPLENBQUMsRUFBRSxLQUFJLFdBQVcsQ0FBQyxTQUFTLEVBQUU7b0JBQzdGLGVBQWU7b0JBQ2YsTUFBQSxHQUFHLENBQUMsTUFBTSwwQ0FBRSxLQUFLLENBQUMsT0FBTyxDQUFDLE9BQU8sQ0FBQyxPQUFPLENBQUMsTUFBTSxDQUFDLEVBQUU7d0JBQy9DLE1BQU0sQ0FBQyxLQUFLLENBQUMsSUFBSSxFQUFFLENBQUM7b0JBQ3hCLENBQUMsRUFBRTtpQkFDTjtnQkFDRCxlQUFlO2dCQUNmLE9BQU8sR0FBRyxDQUFDLEtBQUssQ0FBQyx5QkFBeUIsQ0FBQyxDQUFDO2FBQy9DO1lBQUMsT0FBTyxDQUFDLEVBQUU7Z0JBQ1IsT0FBTyxDQUFDLEdBQUcsQ0FBQyxDQUFDLENBQUMsQ0FBQztnQkFDZixPQUFPLEdBQUcsQ0FBQyxLQUFLLENBQUMsa0JBQWtCLENBQUMsQ0FBQzthQUN4Qzs7S0FDSjtDQUNKLENBQUMifQ==
