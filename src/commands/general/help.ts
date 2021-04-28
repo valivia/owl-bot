@@ -1,4 +1,4 @@
-import { Client, MessageEmbed, User } from "discord.js";
+import { Client, GuildMember, MessageEmbed, User } from "discord.js";
 import { Options } from "../../../settings.json";
 import { ICommands, Iresponse } from "../../interfaces";
 
@@ -28,17 +28,21 @@ module.exports = {
         usages: 1,
     },
 
-    async execute(author: User, { commandName }: { commandName: string | undefined; }, client: Client): Promise<Iresponse> {
+    async execute(author: GuildMember | User, { commandName }: { commandName: string | undefined; }, client: Client): Promise<Iresponse> {
         const { commands } = client;
         let dm = true;
-        if (author.user !== undefined) {
+        if ("user" in author) {
             author = author.user
             dm = false;
         }
 
         if (commandName === undefined) {
             let cmds = "";
-            for (const [, { name, description }] of commands) { cmds += `\n**${name}:** ${description}`; }
+            for (const [, { name, description, disabled }] of commands) {
+                console.log(disabled);
+                if (disabled && author.id !== Options.owner) { continue; }
+                cmds += `\n**${name}:** ${description}`;
+            }
             const list = new MessageEmbed()
                 .setTitle("Available commands")
                 .addFields(
@@ -59,7 +63,7 @@ module.exports = {
         }
 
         const cmdName = commandName?.toLowerCase();
-        const command = commands.get(cmdName) as ICommands || commands.find(c => c.aliases && c.aliases.includes(cmdName));
+        const command = commands.get(cmdName) as ICommands || commands.find((c: { aliases: string | string[]; }) => c.aliases && c.aliases.includes(cmdName));
 
         if (command === undefined) {
             return { type: "text", content: "invalid command.." }

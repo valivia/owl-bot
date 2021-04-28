@@ -1,23 +1,34 @@
-import { Message, MessageReaction, User } from "discord.js";
-import { Connection } from "mariadb";
+import { Client, GuildMember, MessageReaction, User } from "discord.js";
+import { Iresponse } from "../../interfaces";
 module.exports = {
     name: "join",
-
     aliases: [""],
-    description: "Join someone else's private room.",
-    examples: [""],
+    description: "Join a private room",
+    examples: ["@valivia"],
     group: "vc",
+
     guildOnly: true,
-    required: true,
+    adminOnly: false,
+    slash: true,
+
+    args: [
+        {
+            "type": "user",
+            "name": "user",
+            "description": "Which user to join",
+            "default": false,
+            "required": true
+        }
+    ],
 
     throttling: {
         duration: 30,
         usages: 3,
     },
 
-    async execute(msg: Message, args: object[], conn: Connection) {
+    async execute(author: GuildMember, { user }: { user: GuildMember }, client: Client): Promise<Iresponse> {
+        let conn = client.conn;
         try {
-            const pingedUser = args[0] as User;
             const query =
                 `   SELECT VCMembers.UserID, VCMembers.ChannelID, Open, VoiceCHannels.UserID AS OwnerID
                 FROM VCMembers
@@ -26,30 +37,31 @@ module.exports = {
             `
 
             // Check if in vc.
-            if (msg.member?.voice.channel == null) {
-                return msg.reply("Please join a voice channel first.")
+            if (author.voice.channel == null) {
+                return { type: "text", content: "Please join a voice channel first." };
             }
 
             // Query db for pinged user.
-            let userChannel = await conn.query(query, pingedUser.id);
+            let userChannel = await conn.query(query, user.id);
             // Check if user is part of a vc.
             if (userChannel == undefined) {
-                return msg.reply("This person is not part of a private room.")
+                return { type: "text", content: "This person is not part of a private room." };
             }
             // let channelMembers = await db.all("SELECT * FROM `VCMembers` WHERE `ChannelID` = ?", userChannel.ChannelID);
 
             // Check if room is open.
             if (userChannel.Open == 1) {
                 // Drag user in.
-                return msg.member?.voice.setChannel(userChannel.ChannelID);
+                author.voice.setChannel(userChannel.ChannelID);
+                return;
             }
 
             // React with emote.
-            await msg.react("✔️");
+            //await .react("✔️"); // WATCH
 
             // Reaction filter.
             const filter = (reaction: MessageReaction, user: User) => {
-                return reaction.emoji.name === "✔️" && user.id === pingedUser.id;
+                return reaction.emoji.name === "✔️" && user.id === user.id;
             };
 
             // Initiate collector
@@ -58,14 +70,14 @@ module.exports = {
             // Emote gets added.
             collector.on('collect', async () => {
                 // move user into vc.
-                msg.member?.voice.setChannel(userChannel.ChannelID);
+                author.voice.setChannel(userChannel.ChannelID);
                 // Add user to db.
                 await conn.query("INSERT INTO `VCMembers` (UserID, ChannelID, Date) VALUES (?,?,?)", [msg.author.id, userChannel.ChannelID, Date.now()])
             });
 
 
             collector.on('end', () => {
-                return msg.reply("Nobody accepted your request in time.")
+                return { type: "text", content: "Nobody accepted your request in time." };
             });
             return;
         } catch (e) {

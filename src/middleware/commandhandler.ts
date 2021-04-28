@@ -67,7 +67,7 @@ export async function getCommands(client: Client) {
                 }
 
                 // Insert command into db if not there yet.
-                await conn.query("INSERT IGNORE INTO Commands (Name, Disabled, `Group`) VALUES (?,?,?)", [command.name, false, command.group]).catch((error) => {
+                await conn.query("INSERT IGNORE INTO Commands (Name, Disabled, `Info`) VALUES (?,?,?)", [command.name, false, command.default]).catch((error) => {
                     console.error(error);
                 });
                 // Set disable status of command.
@@ -121,6 +121,11 @@ export async function runCommand(user: GuildMember | User, commandName: string, 
         if (input === undefined && arg.required) {
             // Return error.
             return { type: "content", content: `Incorrect command usage, missing the ${arg.name} variable` }
+        }
+
+        // Adds remaining text if possible.
+        if (command.args.length < args.length && Number(index) + 1 == command.args.length && arg.type == 3) {
+            input = args.slice(Number(index), args.length).join(" ")
         }
 
         // Checks which data type it is and converts it into the right one.

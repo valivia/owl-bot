@@ -17,12 +17,27 @@ export default function message(client: Client) {
             if (msg.author.bot) { return; };
 
             // Check if bot is called with prefix or tag.
-            if (!msg.content.startsWith(options.prefix, 0) && !msg.content.startsWith(`<@!${client.user?.id}>`)) { return; }
+            if (!msg.content.startsWith(options.prefix, 0) &&
+                !msg.content.startsWith(`<@!${client.user?.id}>`) &&
+                msg.channel.type !== "dm") { return; }
 
             let user = msg.member == undefined ? msg.author : msg.member as GuildMember;
 
+            let message = msg.content;
+            // Check which way the bot got called.
+            if (message.startsWith(options.prefix)) {
+                // Cut off the prefix.
+                message = message.slice(options.prefix.length);
+            } else if (message.slice(0, 22) === `<@!${client.user?.id}>`) {
+                // Cut off the ping.
+                message = message.slice(22);
+            }
+            // Trim string.
+            message = message.trim()
+            // Check if there is a command.
+            if (message.length === 0) { return; }
             // Split message into arguments.
-            const args = msg.content.slice(options.prefix.length).trim().split(/ +/);
+            let args = message.trim().split(/ +/);
             // Check if it has content.
             if (args === undefined || args.length === 0) { return; }
             // Get command name.

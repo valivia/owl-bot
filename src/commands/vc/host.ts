@@ -1,36 +1,42 @@
-import { Message, MessageEmbed } from "discord.js";
+import { Client, GuildMember, MessageEmbed } from "discord.js";
 import { Connection } from "mariadb";
 import logHandler from "../../middleware/logHandler";
+import { defaultErr } from "../../middleware/modules";
+
 module.exports = {
     name: "host",
-
     aliases: [""],
-    description: "creates a private room.",
+    description: "Host a private room",
     examples: [""],
     group: "vc",
+
     guildOnly: true,
+    adminOnly: false,
+    slash: true,
 
     throttling: {
         duration: 30,
-        usages: 1,
+        usages: 3,
     },
 
-    async execute(msg: Message, _args: object[], conn: Connection) {
+
+    async execute(author: GuildMember, _: undefined, client: Client) {
+        let conn = client.conn;
         try {
             // Check if in vc.
-            if (msg.member?.voice.channel == null) {
-                return msg.reply("Please join a voice channel first.")
+            if (author.voice.channel == null) {
+                return { type: "content", content: "Please join a voice channel first." };
             }
 
             // Query db for user's active vcs.
-            let userChannel = await conn.query("SELECT * FROM VoiceChannels WHERE `UserID` = ?", msg.author.id);
+            let userChannel = await conn.query("SELECT * FROM VoiceChannels WHERE `UserID` = ?", author.id);
             userChannel = userChannel[0];
 
             if (userChannel !== undefined) {
                 // Move user into vc.
-                msg.member.voice.setChannel(userChannel.ChannelID);
+                author.voice.setChannel(userChannel.ChannelID);
                 // Send message.
-                return msg.reply("moved back into your vc");
+                return { type: "content", content: "moved back into your vc" }
             }
 
             // Query open voicechannels
@@ -39,32 +45,32 @@ module.exports = {
 
             // Check if available channels.
             if (openChannels === undefined || openChannels.length == 0) {
-                return msg.reply("There are no more private rooms available.")
+                return { type: "content", content: "There are no more private rooms available." };
             }
 
             // Update db.
-            await conn.query("UPDATE VoiceChannels SET UserID = ?, Date = ? WHERE ChannelID = ?", [msg.author.id, Date.now(), openChannels.ChannelID]);
+            await conn.query("UPDATE VoiceChannels SET UserID = ?, Date = ? WHERE ChannelID = ?", [author.id, Date.now(), openChannels.ChannelID]);
 
             // Add user to db.
-            await conn.query("INSERT INTO VCMembers (UserID, ChannelID, Date) VALUES (?,?,?)", [msg.author.id, openChannels.ChannelID, Date.now()]);
+            await conn.query("INSERT INTO VCMembers (UserID, ChannelID, Date) VALUES (?,?,?)", [author.id, openChannels.ChannelID, Date.now()]);
 
             // Move user into private vc.
-            msg.member.voice.setChannel(openChannels.ChannelID);
+            author.voice.setChannel(openChannels.ChannelID);
 
             // Log
-            logHandler("vc assigned", "a vc was assigned", msg.author, 0);
+            logHandler("vc assigned", "a vc was assigned", author.user, 0);
 
             // Make embed
-            const success = new MessageEmbed()
+            const embed = new MessageEmbed()
                 .addField("Success", (`Successfully assigned a voice channel`))
                 .setColor("#559b0f")
                 .setTimestamp();
 
             // Send message.
-            return msg.channel.send(success);
+            return { type: "embed", content: embed }
         } catch (e) {
             console.log(e);
-            return msg.reply("an error occured");
+            return defaultErr;
         }
     },
 };

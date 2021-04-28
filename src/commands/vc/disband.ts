@@ -1,5 +1,5 @@
-import { Message } from "discord.js";
-import { Connection } from "mariadb";
+import { Client, GuildMember } from "discord.js";
+import { defaultErr } from "../../middleware/modules";
 module.exports = {
     name: "disband",
     aliases: [""],
@@ -11,47 +11,38 @@ module.exports = {
     adminOnly: false,
     slash: true,
 
-    args: [
-        {
-            "type": "string",
-            "name": "channelName",
-            "description": "Name of the channel",
-            "default": false,
-            "required": true
-        }
-    ],
-
     throttling: {
         duration: 30,
         usages: 3,
     },
 
-    async execute(msg: Message, _args: object[], conn: Connection) {
+    async execute(author: GuildMember, _: undefined, client: Client) {
+        let conn = client.conn;
         try {
-            let userChannel = await conn.query("SELECT * FROM `VoiceChannels` WHERE `UserID` = ?", msg.author.id)
+            let userChannel = await conn.query("SELECT * FROM `VoiceChannels` WHERE `UserID` = ?", author.id)
             userChannel = userChannel[0];
 
             // Check if user has a vc.
             if (userChannel == undefined) {
-                return msg.reply("You dont have an active private voicechat")
+                return { type: "content", content: "You dont have an active private voicechat" }
             }
 
             // delete vc from db.
-            await conn.query("UPDATE `VoiceChannels` SET UserID = NULL, Date = NULL, Open = 1 WHERE `UserID` = ?", msg.author.id);
+            await conn.query("UPDATE `VoiceChannels` SET UserID = NULL, Date = NULL, Open = 1 WHERE `UserID` = ?", author.id);
             await conn.query("DELETE FROM VCMembers WHERE ChannelID = ?", userChannel.ChannelID)
 
             // Check if in vc.
-            if (msg.member?.voice.channel !== null && msg.member?.voice.channel.id == userChannel.ChannelID) {
+            if (author.voice.channel !== null && author?.voice.channel.id == userChannel.ChannelID) {
                 // kick from vc
-                msg.member?.voice.channel.members.forEach(member => {
+                author?.voice.channel.members.forEach((member: { voice: { kick: () => void; }; }) => {
                     member.voice.kick();
                 });
             }
             // Send message
-            return msg.reply("voice channel disbanded");
+            return { type: "content", content: "voice channel disbanded" };
         } catch (e) {
             console.log(e);
-            return msg.reply("an error occured");
+            return defaultErr;
         }
     },
 };
