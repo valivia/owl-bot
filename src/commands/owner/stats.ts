@@ -16,7 +16,6 @@ module.exports = {
 
     async execute(author: User | GuildMember, _undefined: undefined, client: Client): Promise<Iresponse> {
         if ("user" in author) author = author.user
-
         const embed = new MessageEmbed()
             .addFields(
                 { name: "Users", value: client.users.cache.size, inline: true },
@@ -24,8 +23,8 @@ module.exports = {
                 { name: "Channels", value: client.channels.cache.size, inline: true },
             )
             .addField("Memory usage", `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)}MB`, true)
-            .addField("Uptime", moment(Date.now() - client.uptime).fromNow().replace(" ago", ""), true)
-            .setFooter(`${author.username} <${author.id}>`, author.avatarURL())
+            .addField("Uptime", moment(Date.now() - client.uptime!).fromNow().replace(" ago", ""), true)
+            .setFooter(`${author.username} <${author.id}>`, author.avatarURL() as string | undefined)
             .setColor("#FF0000")
             .setTimestamp();
 

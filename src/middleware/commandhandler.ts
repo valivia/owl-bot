@@ -56,7 +56,7 @@ export async function getCommands(client: Client) {
                 query = query[0];
 
                 if (query === undefined && command.slash) {
-                    client.api.applications(client.user.id).commands.post({
+                    client.api.applications(client.user!.id).commands.post({
                         data: {
                             name: command.name,
                             description: command.description,
@@ -83,9 +83,12 @@ export async function getCommands(client: Client) {
     }
 }
 
-export async function runCommand(user: GuildMember | User, commandName: string, args: string[], client: Client): Promise<Iresponse> {
+export async function runCommand(user: GuildMember | User | null, commandName: string, args: string[], client: Client): Promise<Iresponse> {
     // Try to find the command.
     let command = getCommand(client, commandName);
+
+    // Not null.
+    if (user === null) { return defaultErr }
 
     // Check if command exists.
     if (command === undefined) { return { type: "disabled", content: "command doesnt exist" } }

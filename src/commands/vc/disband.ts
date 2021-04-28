@@ -34,7 +34,7 @@ module.exports = {
             // Check if in vc.
             if (author.voice.channel !== null && author?.voice.channel.id == userChannel.ChannelID) {
                 // kick from vc
-                author?.voice.channel.members.forEach((member: { voice: { kick: () => void; }; }) => {
+                author?.voice.channel.members.each((member: { voice: { kick: () => void; }; }) => {
                     member.voice.kick();
                 });
             }

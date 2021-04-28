@@ -1,5 +1,4 @@
 import { Client, GuildMember, MessageEmbed } from "discord.js";
-import { Connection } from "mariadb";
 import logHandler from "../../middleware/logHandler";
 import { defaultErr } from "../../middleware/modules";
 

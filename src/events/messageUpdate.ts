@@ -4,7 +4,7 @@ import logHandler from "../middleware/logHandler";
 export const name =  "messageUpdate";
 
 
-export default function guildAdd(client: Client) {
+export default function guildAdd(_client: Client) {
 
     return async (oldmsg: Message | PartialMessage, newmsg: Message | PartialMessage) => {
         try {

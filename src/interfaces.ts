@@ -16,6 +16,8 @@ export interface ICommands {
 
     throttling: Ithrottling;
 
+    default: ICommands;
+
     execute(member: GuildMember | User, args?: {}, client?: Client): Promise <Iresponse>;
 }
 

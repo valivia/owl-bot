@@ -37,11 +37,9 @@ export default function message(client: Client) {
             // Check if there is a command.
             if (message.length === 0) { return; }
             // Split message into arguments.
-            let args = message.trim().split(/ +/);
-            // Check if it has content.
-            if (args === undefined || args.length === 0) { return; }
+            let args: string[] = message.trim().split(/ +/) || [];
             // Get command name.
-            const commandName = args.shift().toLowerCase();
+            const commandName = args.shift()!.toLowerCase()
 
             // Loop through arguments and pick out the mentions
             for (let i = 0; i < args.length; i++) {
