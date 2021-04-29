@@ -1,14 +1,14 @@
 import colors from "colors";
 colors.enable();
 
-import discord from "discord.js";
-import settings from "../settings.json";
 import fs from "fs";
-
-import { getCommands, runCommand } from "./middleware/commandhandler";
-import { fetchChannel } from "./middleware/logHandler"
+import discord from "discord.js";
 import { Connection } from "mariadb";
+
+import settings from "../settings.json";
+import { getCommands, runCommand } from "./middleware/commandhandler";
 import { getMember, getUser } from "./middleware/modules";
+import { fetchChannel } from "./middleware/logHandler"
 
 export default function discordBot(pool: Connection) {
 

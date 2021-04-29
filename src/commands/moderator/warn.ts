@@ -1,5 +1,6 @@
 import { Client, GuildMember, MessageEmbed } from "discord.js";
-import { Iresponse } from "../../interfaces";
+import { argType, Iresponse } from "../../interfaces";
+
 module.exports = {
     name: "warn",
     aliases: [""],
@@ -13,14 +14,14 @@ module.exports = {
 
     args: [
         {
-            "type": "user",
+            "type": argType.user,
             "name": "member",
             "description": "User to warn",
             "default": false,
             "required": true
         },
         {
-            "type": "string",
+            "type": argType.string,
             "name": "reason",
             "description": "Reason why the user is getting warned",
             "default": false,
@@ -33,9 +34,8 @@ module.exports = {
         usages: 3,
     },
 
-    async execute(author: GuildMember, { member, reason }: { member: GuildMember, reason: string }, client: Client): Promise <Iresponse> {
-        let conn = client.conn;
-        if (reason === undefined) { reason = "No reason provided"}
+    async execute(author: GuildMember, { member, reason }: { member: GuildMember, reason: string }, { conn }: Client): Promise<Iresponse> {
+        if (reason === undefined) { reason = "No reason provided" }
         try {
             // insert into db.
             await conn.query("INSERT INTO Warnings (UserID,Reason,Date,GuildID,ModID) VALUES(?,?,?,?,?)", [member.id, reason.substr(0, 256), Date.now(), member.guild?.id, author.id])

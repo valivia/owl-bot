@@ -1,5 +1,4 @@
 import { Client, VoiceState } from "discord.js";
-import logHandler from "../middleware/logHandler";
 
 export const name = "voiceStateUpdate";
 

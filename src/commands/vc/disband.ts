@@ -19,7 +19,7 @@ module.exports = {
     async execute(author: GuildMember, _: undefined, client: Client) {
         let conn = client.conn;
         try {
-            let userChannel = await conn.query("SELECT * FROM `VoiceChannels` WHERE `UserID` = ?", author.id)
+            let userChannel = await conn.query("SELECT * FROM `VoiceChannels` WHERE `UserID` = ? AND `GuildID` = ?", [author.id, author.guild.id])
             userChannel = userChannel[0];
 
             // Check if user has a vc.
@@ -28,7 +28,7 @@ module.exports = {
             }
 
             // delete vc from db.
-            await conn.query("UPDATE `VoiceChannels` SET UserID = NULL, Date = NULL, Open = 1 WHERE `UserID` = ?", author.id);
+            await conn.query("UPDATE `VoiceChannels` SET UserID = NULL, Date = NULL, Open = 1 WHERE `UserID` = ? AND `GuildID` = ?", [author.id, author.guild.id]);
             await conn.query("DELETE FROM VCMembers WHERE ChannelID = ?", userChannel.ChannelID)
 
             // Check if in vc.

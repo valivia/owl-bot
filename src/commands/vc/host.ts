@@ -28,7 +28,7 @@ module.exports = {
             }
 
             // Query db for user's active vcs.
-            let userChannel = await conn.query("SELECT * FROM VoiceChannels WHERE `UserID` = ?", author.id);
+            let userChannel = await conn.query("SELECT * FROM VoiceChannels WHERE `UserID` = ? AND `GuildID` = ?", [author.id, author.guild.id]);
             userChannel = userChannel[0];
 
             if (userChannel !== undefined) {
@@ -39,7 +39,7 @@ module.exports = {
             }
 
             // Query open voicechannels
-            let openChannels = await conn.query("SELECT * FROM VoiceChannels WHERE `UserID` IS NULL");
+            let openChannels = await conn.query("SELECT * FROM VoiceChannels WHERE UserID IS NULL AND GuildID = ?", [author.guild.id]);
             openChannels = openChannels[0];
 
             // Check if available channels.

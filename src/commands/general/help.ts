@@ -1,6 +1,6 @@
 import { Client, GuildMember, MessageEmbed, User } from "discord.js";
 import { Options } from "../../../settings.json";
-import { ICommands, Iresponse } from "../../interfaces";
+import { argType, ICommands, Iresponse } from "../../interfaces";
 
 module.exports = {
     name: "help",
@@ -15,7 +15,7 @@ module.exports = {
 
     args: [
         {
-            "type": "string",
+            "type": argType.string,
             "name": "commandName",
             "description": "what command do you want info on?",
             "default": false,

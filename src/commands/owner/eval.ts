@@ -16,7 +16,7 @@ module.exports = {
         usages: 3,
     },
 
-    async execute(msg: Message, args: object[], _conn: Connection, client: Client) {
+    async execute(msg: Message, args: object[], _conn: Connection) {
         let result;
         try {
             result = args.join(" ");

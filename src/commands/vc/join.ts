@@ -1,5 +1,5 @@
 import { Client, GuildMember, MessageReaction, User } from "discord.js";
-import { Iresponse } from "../../interfaces";
+import { argType, Iresponse } from "../../interfaces";
 module.exports = {
     name: "join",
     aliases: [""],
@@ -13,7 +13,7 @@ module.exports = {
 
     args: [
         {
-            "type": "user",
+            "type": argType.user,
             "name": "user",
             "description": "Which user to join",
             "default": false,

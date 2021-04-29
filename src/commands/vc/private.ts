@@ -19,7 +19,7 @@ module.exports = {
     async execute(author: GuildMember, _: undefined, client: Client): Promise<Iresponse> {
         let conn = client.conn;
         try {
-            let userChannel = await conn.query("SELECT * FROM VoiceChannels WHERE UserID = ?", author.id)
+            let userChannel = await conn.query("SELECT * FROM VoiceChannels WHERE UserID = ? AND `GuildID` = ?", [author.id, author.guild.id]);
             userChannel = userChannel[0];
             // Check if user has a vc.
             if (userChannel == undefined) {
@@ -27,7 +27,7 @@ module.exports = {
             }
 
             // Make vc private/open
-            await conn.query("UPDATE `VoiceChannels` SET Open = ? WHERE `UserID` = ?", [userChannel.Open == 1 ? 0 : 1, author.id]);
+            await conn.query("UPDATE `VoiceChannels` SET Open = ? WHERE `UserID` = ? AND `GuildID` = ?", [userChannel.Open == 1 ? 0 : 1, author.id, author.guild.id]);
 
             // Notify user.
             return { type: "text", content: `Your voicechannel is now ${userChannel.Open == 1 ? "closed" : "open"}.` };

@@ -35,22 +35,13 @@ export async function getCommands(client: Client) {
 
                 // loop through arguments.
                 for (const type in command.args) {
-                    let x;
-                    // set int of type;
-                    switch (command.args[type].type) {
-                        case "string": x = 3; break;
-                        case "integer": x = 4; break;
-                        case "boolean": x = 5; break;
-                        case "user": x = 6; break;
-                        case "channel": x = 7; break;
-                        case "role": x = 8; break;
-                        default: {
-                            console.log(`${command.args[type].type} is an invalid arg type at ${command.name}`.red.bold);
-                            process.exit();
-                        }
+                    let num = command.args[type].type;
+                    if (num > 8 || num < 3 || !Number.isFinite(num)) {
+                        console.log(`${command.args[type].type} is an invalid arg type at ${command.name}`.red.bold);
+                        process.exit();
                     }
-                    command.args[type].type = x
                 }
+
                 // Get command from db.
                 let query = await conn.query("SELECT * FROM Commands WHERE Name = ?", command.name);
                 query = query[0];

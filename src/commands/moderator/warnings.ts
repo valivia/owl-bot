@@ -1,6 +1,6 @@
 import { Client, GuildMember, MessageEmbed } from "discord.js";
 import moment from "moment";
-import { Iresponse } from "../../interfaces";
+import { argType, Iresponse } from "../../interfaces";
 
 module.exports = {
     name: "warnings",
@@ -15,7 +15,7 @@ module.exports = {
 
     args: [
         {
-            "type": "user",
+            "type": argType.user,
             "name": "member",
             "description": "which user's warnings to display.",
             "default": false,

@@ -1,5 +1,5 @@
 import { Client, GuildMember, VoiceChannel } from "discord.js";
-import { Iresponse } from "../../interfaces";
+import { argType, Iresponse } from "../../interfaces";
 import { defaultErr } from "../../middleware/modules";
 
 module.exports = {
@@ -15,7 +15,7 @@ module.exports = {
 
     args: [
         {
-            "type": "string",
+            "type": argType.string,
             "name": "channelName",
             "description": "Name of the channel",
             "default": false,
@@ -48,7 +48,7 @@ module.exports = {
             }
 
             // Add to db.
-            await conn.query("INSERT INTO `VoiceChannels` (ChannelID) VALUES(?)", [channel.id])
+            await conn.query("INSERT INTO `VoiceChannels` (ChannelID, GuildID) VALUES(?,?)", [channel.id, author.guild.id])
                 .catch(err => {
                     console.log(err)
                     return defaultErr

@@ -1,5 +1,5 @@
 import { Client, GuildMember, MessageEmbed } from "discord.js";
-import { Iresponse } from "../../interfaces";
+import { argType, Iresponse } from "../../interfaces";
 import { defaultErr } from "../../middleware/modules";
 
 module.exports = {
@@ -15,14 +15,14 @@ module.exports = {
 
     args: [
         {
-            "type": "user",
+            "type": argType.user,
             "name": "member",
             "description": "which user's warning to remove.",
             "default": false,
             "required": true
         },
         {
-            "type": "integer",
+            "type": argType.integer,
             "name": "number",
             "description": "which warning.",
             "default": false,

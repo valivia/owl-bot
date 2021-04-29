@@ -12,27 +12,40 @@ export interface ICommands {
     disabled?: boolean;
     slash: boolean;
 
-    args: Iarguments[];
+    args: {
+        type: string | number;
+        name: string;
+        description: string;
+        default: boolean | string;
+        required: boolean;
+    }[]
 
-    throttling: Ithrottling;
+    throttling: {
+        duration: number;
+        usages: number;
+    }
 
     default: ICommands;
 
-    execute(member: GuildMember | User, args?: {}, client?: Client): Promise <Iresponse>;
+    execute(member: GuildMember | User, args?: {}, client?: Client): Promise<Iresponse>;
 }
 
-export interface Iarguments {
-    type: string | number;
-    name: string;
-    description: string;
-    default: boolean | string;
-    required: boolean;
-}
-export interface Ithrottling {
-    duration: number;
-    usages: number;
-}
 export interface Iresponse {
     type: string;
     content: string | {}
+}
+
+export enum logType {
+    good = "#559b0f",
+    bad = "#F50303",
+    neutral = "#b700ff"
+}
+
+export enum argType {
+    string = 3,
+    integer = 4,
+    boolean = 5,
+    user = 6,
+    channel = 7,
+    role = 8
 }

@@ -19,6 +19,7 @@ export default function message(client: Client) {
             // Check if bot is called with prefix or tag.
             if (!msg.content.startsWith(options.prefix, 0) &&
                 !msg.content.startsWith(`<@!${client.user?.id}>`) &&
+                !msg.content.startsWith(`<@&${client.user?.id}>`) &&
                 msg.channel.type !== "dm") { return; }
 
             let user = msg.member == undefined ? msg.author : msg.member as GuildMember;
@@ -28,7 +29,7 @@ export default function message(client: Client) {
             if (message.startsWith(options.prefix)) {
                 // Cut off the prefix.
                 message = message.slice(options.prefix.length);
-            } else if (message.slice(0, 22) === `<@!${client.user?.id}>`) {
+            } else if (message.slice(0, 22) === `<@!${client.user?.id}>` || message.slice(0, 22) === `<@&${client.user?.id}>`) {
                 // Cut off the ping.
                 message = message.slice(22);
             }

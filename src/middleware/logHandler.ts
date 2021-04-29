@@ -5,13 +5,13 @@ colors.enable();
 
 let channel: Channel;
 
-export default async function logHandler(title: string, context: string, author: User, type: number, mod: User | undefined = undefined) {
+export default async function logHandler(title: string, context: string, author: User, type: logType, mod: User | undefined = undefined) {
     // 0 = green
     // 1 = red
     // other = purple
     const embed = new MessageEmbed()
     .addField(title, context)
-    .setColor(type === 0 ? "#559b0f" : (type === 1 ? "#F50303" : "#b700ff" ))
+    .setColor(type)
     .setFooter(`${author.username} <@${author.id}>`, author.displayAvatarURL())
     .setTimestamp();
 
