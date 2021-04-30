@@ -14,5 +14,12 @@
         "@typescript-eslint"
     ],
     "rules": {
+        "eqeqeq": "warn",
+        "new-cap": "off",
+        "no-unused-vars": "warn",
+        "no-unreachable": "warn",
+        "no-use-before-define": "warn",
+        "no-useless-catch": "warn",
+        "no-throw-literal": "warn"
     }
 }
