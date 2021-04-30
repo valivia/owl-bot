@@ -1,0 +1,24 @@
+{
+  "Bot": {
+      "Token": ""
+  },
+  "Options": {
+      "owner": "",
+      "guild": "",
+      "channel": "",
+      "everyone": false,
+      "prefix": "]"
+  },
+  "db": {
+      "host": "",
+      "user": "",
+      "password": "",
+      "connectionLimit": 5,
+      "database": ""
+  },
+  "rcon": {
+      "pass": "",
+      "host": "",
+      "port": ""
+  }
+}
