@@ -3,10 +3,10 @@ import { argType, Iresponse, logType } from "../../interfaces";
 import logHandler from "../../middleware/logHandler";
 
 module.exports = {
-    name: "warn",
+    name: "kick",
     aliases: [""],
-    description: "warns a user",
-    example: "@valivia memes in general",
+    description: "kicks a user",
+    example: "@valivia being cringe",
     group: "moderator",
 
     guildOnly: true,
@@ -17,14 +17,14 @@ module.exports = {
         {
             "type": argType.user,
             "name": "member",
-            "description": "User to warn",
+            "description": "User to kick",
             "default": false,
             "required": true
         },
         {
             "type": argType.string,
             "name": "reason",
-            "description": "Reason why the user is getting warned",
+            "description": "Reason why the user is getting kicked",
             "default": false,
             "required": false
         }
@@ -38,19 +38,14 @@ module.exports = {
     async execute(author: GuildMember, { member, reason }: { member: GuildMember, reason: string }, { conn }: Client): Promise<Iresponse> {
         if (reason === undefined) { reason = "No reason provided" }
         try {
-            // insert into db.
-            await conn.query("INSERT INTO Warnings (UserID,Reason,Date,GuildID,ModID) VALUES(?,?,?,?,?)", [member.id, reason.substr(0, 256), Date.now(), member.guild?.id, author.id])
-                .catch(e => {
-                    console.log(e);
-                    return { type: "text", content: "an error occured" };
-                });
-            // make embed.
+            member.kick(reason);
+
             let embed = new MessageEmbed()
-                .setAuthor(`${member.user.username}#${member.user.discriminator} has been warned`)
+                .setAuthor(`${member.user.username}#${member.user.discriminator} has been kicked`)
                 .setDescription(`**reason:** ${reason}`)
                 .setColor(5362138)
 
-            logHandler("Warned", `warned for ${reason}`, member.user, logType.neutral, author.user)
+            logHandler("kicked", `kicked for ${reason}`, member.user, logType.neutral, author.user)
             // send embed.
             return { type: "embed", content: embed };
         } catch (e) {

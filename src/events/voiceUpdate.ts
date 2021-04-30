@@ -5,6 +5,7 @@ export const name = "voiceStateUpdate";
 export default function voiceUpdate(client: Client) {
 
     return async (oldState: VoiceState, newState: VoiceState) => {
+        return;
         try {
             const query = `
                 SELECT VCMembers.UserID, VCMembers.ChannelID, Open, VoiceChannels.UserID AS OwnerID

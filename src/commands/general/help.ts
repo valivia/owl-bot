@@ -11,7 +11,7 @@ module.exports = {
 
     guildOnly: false,
     adminOnly: false,
-    slash: false,
+    slash: true,
 
     args: [
         {
@@ -39,7 +39,6 @@ module.exports = {
         if (commandName === undefined) {
             let cmds = "";
             for (const [, { name, description, disabled }] of commands) {
-                console.log(disabled);
                 if (disabled && author.id !== Options.owner) { continue; }
                 cmds += `\n**${name}:** ${description}`;
             }

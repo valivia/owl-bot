@@ -1,6 +1,7 @@
 import colors from "colors";
 import { Channel, Client, Guild, MessageEmbed, User } from "discord.js";
 import { Options } from "../../settings.json"
+import { logType } from "../interfaces";
 colors.enable();
 
 let channel: Channel;
