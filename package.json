@@ -1,7 +1,7 @@
 {
   "scripts": {
     "lint": "eslint App.ts src --ext .ts",
-    "lint-fix": "eslint --fix src --ext .ts",
+    "lint-fix": "eslint --fix App.ts src --ext .ts",
     "build": "tsc --build tsconfig.json"
   },
   "dependencies": {

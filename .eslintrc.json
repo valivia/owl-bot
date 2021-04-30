@@ -15,11 +15,12 @@
     ],
     "rules": {
         "eqeqeq": "warn",
-        "new-cap": "off",
+        "new-cap": "warn",
         "no-unused-vars": "warn",
         "no-unreachable": "warn",
         "no-use-before-define": "warn",
         "no-useless-catch": "warn",
-        "no-throw-literal": "warn"
+        "no-throw-literal": "warn",
+        "semi": ["warn", "always"]
     }
 }
