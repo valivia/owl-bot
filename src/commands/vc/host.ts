@@ -1,4 +1,5 @@
 import { Client, GuildMember, MessageEmbed } from "discord.js";
+import { logType } from "../../interfaces";
 import logHandler from "../../middleware/logHandler";
 import { defaultErr } from "../../middleware/modules";
 
@@ -14,8 +15,8 @@ module.exports = {
     slash: true,
 
     throttling: {
-        duration: 30,
-        usages: 3,
+        duration: 60,
+        usages: 1,
     },
 
 
@@ -57,7 +58,7 @@ module.exports = {
             author.voice.setChannel(openChannels.ChannelID);
 
             // Log
-            logHandler("vc assigned", "a vc was assigned", author.user, 0);
+            logHandler("vc assigned", "a vc was assigned", author.user, logType.good);
 
             // Make embed
             const embed = new MessageEmbed()

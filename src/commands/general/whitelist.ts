@@ -1,9 +1,10 @@
 import axios from "axios";
 import { Client, GuildMember } from "discord.js";
 import { Rcon } from "rcon-client";
-import { argType, Iresponse } from "../../interfaces";
+import { argType, Iresponse, logType } from "../../interfaces";
 import { defaultErr } from "../../middleware/modules";
 import settings from "../../../settings.json"
+import logHandler from "../../middleware/logHandler";
 
 module.exports = {
     name: "whitelist",
@@ -38,20 +39,21 @@ module.exports = {
             if (author.guild.id !== "823993381591711786") return { type: "disabled", content: "Not allowed in this guild." };
 
             // Check if sub.
-            if (!author.roles.cache.has("831881973348827136")) return { type: "text", content: "You have to be a sub to use this command." };
-            
+            if (!author.roles.cache.has("841690912748208158")) return { type: "text", content: "You have to be a sub to use this command." };
+
             // rcon connect.
             const rcon = await Rcon.connect({ host: settings.rcon.host, port: settings.rcon.port, password: settings.rcon.pass });
-            
+
             // Check if account exists.
             const id = await accountExists(username);
-            
+
             // Check if should continue.
             if (!id) return { type: "text", content: "mc account doesn't exist" };
-            
+
             // Check if already registered.
-            const query = await conn.query("SELECT * FROM Whitelist WHERE UserID = ? OR UUID = ?", [author.id, id]);
-            if (query[0] !== undefined) return { type: "text", content: "You already have an account linked." };
+            const query = await conn.whitelist.findUnique({ where: { UserID: author.id, UUID: id as string } })
+
+            if (query === null) return { type: "text", content: "You already have an account linked." };
 
             // Try to whitelist.
             const response = await rcon.send(`whitelist add ${username}`);
@@ -61,7 +63,10 @@ module.exports = {
             if (response === "Player is already whitelisted") return { type: "text", content: "That name is already whitelisted" };
 
             // Add to db.
-            conn.query("INSERT INTO Whitelist (UserID, UUID, Date) VALUES (?,?,?)", [author.id, id, Date.now()]);
+            conn.whitelist.create({ data: { UserID: author.id, UUID: id as string, Date: Date.now() } })
+
+            // Log it.
+            logHandler("Whitelisted", `${username} was added to the whitelist ${id}`, author.user, logType.good);
 
             // Respond.
             return { type: "text", content: "You've been whitelisted!" };
@@ -74,7 +79,7 @@ module.exports = {
     },
 };
 
-async function accountExists(username: string) {
+async function accountExists(username: string): Promise<boolean | string> {
     let code = false;
     await axios.get(`https://api.mojang.com/users/profiles/minecraft/${username}`)
         .then(response => {

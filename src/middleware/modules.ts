@@ -1,5 +1,6 @@
 import { Client, Guild, GuildChannel, GuildMember, Role, User } from "discord.js";
 import { ICommands } from "../interfaces";
+import { CronJob } from "cron";
 
 export async function getUser(client: Client, userID: string): Promise<User | null> {
     let user;

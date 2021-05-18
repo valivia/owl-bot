@@ -39,17 +39,19 @@ module.exports = {
         let conn = client.conn;
         if (number < 1) { return { type: "content", content: "Invalid index" } }
 
-        let searchQuery = "SELECT * FROM Warnings WHERE UserID = ? AND GuildID = ? ORDER BY `Date` ASC LIMIT 1 OFFSET ?";
-        let delquery = "DELETE FROM Warnings WHERE `Date` = ? AND GuildID = ?";
-
         try {
-            let query = await conn.query(searchQuery, [member.id, member.guild.id, number - 1]);
+            const query = await conn.warnings.findFirst({
+                where: {
+                    UserID: member.id,
+                    GuildID: member.guild.id,
+                },
+                orderBy: { Date: "asc" },
+                skip: number - 1
+            });
 
-            if (query[0] == undefined) {
-                return { type: "content", content: "Out of bounds." }
-            }
+            if (query === null) return { type: "content", content: "Out of bounds." }
 
-            await conn.query(delquery, [query[0].Date, member.guild.id]);
+            await conn.warnings.delete({ where: { id: query.id } })
 
             let embed = new MessageEmbed()
                 .setAuthor(`${member.user.username}#${member.user.discriminator}'s warning was removed`)

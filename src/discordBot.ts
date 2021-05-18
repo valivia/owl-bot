@@ -3,14 +3,14 @@ colors.enable();
 
 import fs from "fs";
 import discord from "discord.js";
-import { Connection } from "mariadb";
 
 import settings from "../settings.json";
 import { getCommands, runCommand } from "./middleware/commandhandler";
 import { getMember, getUser } from "./middleware/modules";
 import { fetchChannel } from "./middleware/logHandler"
+import { PrismaClient } from ".prisma/client";
 
-export default function discordBot(pool: Connection) {
+export default function discordBot(db: PrismaClient) {
 
     const client = new discord.Client();
 
@@ -20,7 +20,7 @@ export default function discordBot(pool: Connection) {
         .on("ready", async () => {
             if (client.user === null) { return; }
             // setTimeout(loop, 1000);
-            client.conn = pool;
+            client.conn = db;
             await client.user.setActivity(`for ${client.guilds.cache.size} servers`, {
                 type: "STREAMING",
                 url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
@@ -46,6 +46,7 @@ export default function discordBot(pool: Connection) {
                         });
                     }
                 })
+
             console.log(` > Client ready, logged in as ${client.user.username}#${client.user.discriminator} (${client.user.id})`.magenta);
         })
         .on("disconnect", () => {
@@ -63,6 +64,9 @@ export default function discordBot(pool: Connection) {
 
             let user;
             let userID = interaction.member !== undefined ? interaction.member.user.id : interaction.user.id;
+
+            // Return if cal.
+            if (userID === "367750323860799508") return;
 
             // Check if executed from guild.
             if (interaction.guild_id !== undefined) {

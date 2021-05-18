@@ -39,7 +39,7 @@ module.exports = {
         if (reason === undefined) { reason = "No reason provided" }
         try {
             // insert into db.
-            await conn.query("INSERT INTO Warnings (UserID,Reason,Date,GuildID,ModID) VALUES(?,?,?,?,?)", [member.id, reason.substr(0, 256), Date.now(), member.guild?.id, author.id])
+            await conn.warnings.create({ data: { UserID: member.id, Reason: reason.substr(0, 256), Date: Date.now(), GuildID: member.guild?.id, ModID: author.id } })
                 .catch(e => {
                     console.log(e);
                     return { type: "text", content: "an error occured" };
@@ -48,9 +48,9 @@ module.exports = {
             let embed = new MessageEmbed()
                 .setAuthor(`${member.user.username}#${member.user.discriminator} has been warned`)
                 .setDescription(`**reason:** ${reason}`)
-                .setColor(5362138)
+                .setColor(5362138);
 
-            logHandler("Warned", `warned for ${reason}`, member.user, logType.neutral, author.user)
+            logHandler("Warned", `warned for ${reason}`, member.user, logType.neutral, author.user);
             // send embed.
             return { type: "embed", content: embed };
         } catch (e) {

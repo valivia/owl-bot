@@ -1,5 +1,5 @@
 import { Client, GuildMember, MessageEmbed } from "discord.js";
-import moment from "moment";
+import moment, { MomentInput } from "moment";
 import { argType, Iresponse } from "../../interfaces";
 
 module.exports = {
@@ -29,11 +29,10 @@ module.exports = {
     },
 
     async execute(author: GuildMember, { member }: { member: GuildMember }, client: Client): Promise<Iresponse> {
-        let query = "SELECT * FROM Warnings WHERE `UserID` = ? AND GuildID = ? ORDER BY `Date` ASC";
         let conn = client.conn;
         try {
             // Get from DB.
-            let warnings = await conn.query(query, [member.id, member.guild.id]);
+            const warnings = await conn.warnings.findMany({ where: { UserID: member.id, GuildID: member.guild.id }, orderBy: { Date: "asc" } })
 
             // Vars.
             let x = 0;
@@ -42,7 +41,8 @@ module.exports = {
             for (let warning of warnings) {
                 x++
                 // Get time.
-                let date = moment(warning.Date).fromNow();
+                console.log(warning);
+                let date = moment(Number(warning.Date)).fromNow();
                 // Add warning to the list.
                 warns.push({ name: `${x}`, value: `**mod:** <@!${warning.ModID}>\n **reason:** ${warning.Reason}\n **Date:** ${date}` })
 

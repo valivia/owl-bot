@@ -1,7 +1,23 @@
 import disc from "./src/discordBot";
-import db from "mariadb";
-import settings from "./settings.json"
+import { PrismaClient } from '@prisma/client'
 
-db.createConnection(settings.db).then(conn => {
-    disc(conn);
-})
+
+const db = new PrismaClient()
+
+async function main() {
+    disc(db);
+}
+
+main()
+
+    .catch(e => {
+
+        throw e
+
+    })
+
+    .finally(async () => {
+
+        await db.$disconnect()
+
+    })

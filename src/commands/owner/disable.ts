@@ -36,7 +36,7 @@ module.exports = {
 
             if (command === undefined) return { type: "text", content: "This command doesnt exist." }
 
-            await conn.query("UPDATE Commands SET Disabled = ? WHERE Name = ?", [command.disabled ? 0 : 1, commandName])
+            await conn.commands.update({ data: { Disabled: (command.disabled ? false : true) }, where: { Name: commandName } });
 
             command.disabled = !command.disabled
 

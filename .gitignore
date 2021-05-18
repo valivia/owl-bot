@@ -6,3 +6,4 @@ tsconfig.json
 tslint.sjon
 *.js
 .gitignore
+.env

@@ -24,6 +24,9 @@ export default function message(client: Client) {
 
             let user = msg.member == undefined ? msg.author : msg.member as GuildMember;
 
+            // Return if cal.
+            if (msg.author.id === "367750323860799508") return;
+
             let message = msg.content;
             // Check which way the bot got called.
             if (message.startsWith(options.prefix)) {

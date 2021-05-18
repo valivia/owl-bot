@@ -43,10 +43,14 @@ export async function getCommands(client: Client) {
                 }
 
                 // Get command from db.
-                let query = await conn.query("SELECT * FROM Commands WHERE Name = ?", command.name);
-                query = query[0];
+                let query = await conn.commands.findUnique({
+                    where: {
+                        Name: command.name
+                    }
+                });
 
-                if (query === undefined && command.slash) {
+                // Add to slash commands.
+                if (query === null && command.slash) {
                     client.api.applications(client.user!.id).commands.post({
                         data: {
                             name: command.name,
@@ -58,9 +62,16 @@ export async function getCommands(client: Client) {
                 }
 
                 // Insert command into db if not there yet.
-                await conn.query("INSERT IGNORE INTO Commands (Name, Disabled, `Info`) VALUES (?,?,?)", [command.name, false, command.default]).catch((error) => {
-                    console.error(error);
-                });
+                if (query === null) {
+                    await conn.commands.create({
+                        data: {
+                            Name: command.name,
+                            Disabled: false,
+                            Info: JSON.stringify(command.default),
+                        },
+                    })
+                }
+
                 // Set disable status of command.
                 command.disabled = query?.Disabled ? true : false;
                 // Add command to client.

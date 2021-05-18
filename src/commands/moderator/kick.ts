@@ -35,7 +35,7 @@ module.exports = {
         usages: 3,
     },
 
-    async execute(author: GuildMember, { member, reason }: { member: GuildMember, reason: string }, { conn }: Client): Promise<Iresponse> {
+    async execute(author: GuildMember, { member, reason }: { member: GuildMember, reason: string }): Promise<Iresponse> {
         if (reason === undefined) { reason = "No reason provided" }
         try {
             member.kick(reason);

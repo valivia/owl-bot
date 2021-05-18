@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Commands {
+  Name     String  @unique @db.VarChar(16)
+  Disabled Boolean @default(false)
+  Info     String  @db.LongText
+  id       Int     @id @default(autoincrement())
+}
+
+model VCMembers {
+  UserID        String        @db.VarChar(18)
+  ChannelID     String        @db.VarChar(18)
+  Date          BigInt
+  VoiceChannels VoiceChannels @relation(fields: [ChannelID], references: [ChannelID])
+
+  @@id([ChannelID, UserID])
+}
+
+model VoiceChannels {
+  UserID    String?     @db.VarChar(18)
+  ChannelID String      @id @db.VarChar(18)
+  Date      BigInt?
+  Open      Boolean     @default(true)
+  GuildID   String      @db.VarChar(18)
+  VCMembers VCMembers[]
+}
+
+model Warnings {
+  UserID  String  @db.VarChar(18)
+  Reason  String? @db.Text
+  Date    BigInt  @db.UnsignedBigInt
+  GuildID String  @db.VarChar(18)
+  ModID   String  @db.VarChar(18)
+  id      Int     @id @default(autoincrement())
+}
+
+model Whitelist {
+  UserID    String  @unique @db.VarChar(18)
+  UUID      String  @unique @db.VarChar(32)
+  Date      BigInt
+  Permanent Boolean @default(false)
+  Expired   Boolean @default(false)
+}
