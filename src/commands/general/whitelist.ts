@@ -1,8 +1,7 @@
-import axios from "axios";
 import { Client, GuildMember } from "discord.js";
 import { Rcon } from "rcon-client";
 import { argType, Iresponse, logType } from "../../interfaces";
-import { defaultErr } from "../../middleware/modules";
+import { accountExists, defaultErr } from "../../middleware/modules";
 import settings from "../../../settings.json"
 import logHandler from "../../middleware/logHandler";
 
@@ -51,9 +50,16 @@ module.exports = {
             if (!id) return { type: "text", content: "mc account doesn't exist" };
 
             // Check if already registered.
-            const query = await conn.whitelist.findUnique({ where: { UserID: author.id, UUID: id as string } })
+            const query = await conn.whitelist.findFirst({
+                where: {
+                    OR: [
+                        { UserID: author.id, },
+                        { UUID: id as string }
+                    ],
+                },
+            })
 
-            if (query === null) return { type: "text", content: "You already have an account linked." };
+            if (query !== null) return { type: "text", content: "You already have an account linked." };
 
             // Try to whitelist.
             const response = await rcon.send(`whitelist add ${username}`);
@@ -63,7 +69,7 @@ module.exports = {
             if (response === "Player is already whitelisted") return { type: "text", content: "That name is already whitelisted" };
 
             // Add to db.
-            conn.whitelist.create({ data: { UserID: author.id, UUID: id as string, Date: Date.now() } })
+            await conn.whitelist.create({ data: { UserID: author.id, UUID: id as string, Date: Date.now() } })
 
             // Log it.
             logHandler("Whitelisted", `${username} was added to the whitelist ${id}`, author.user, logType.good);
@@ -78,12 +84,3 @@ module.exports = {
         }
     },
 };
-
-async function accountExists(username: string): Promise<boolean | string> {
-    let code = false;
-    await axios.get(`https://api.mojang.com/users/profiles/minecraft/${username}`)
-        .then(response => {
-            code = response.status === 200 ? response.data.id : false;
-        })
-    return code;
-}

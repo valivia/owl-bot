@@ -28,8 +28,7 @@ module.exports = {
         usages: 3,
     },
 
-    async execute(author: GuildMember, { member }: { member: GuildMember }, client: Client): Promise<Iresponse> {
-        let conn = client.conn;
+    async execute(author: GuildMember, { member }: { member: GuildMember }, { conn }: Client): Promise<Iresponse> {
         try {
             // Get from DB.
             const warnings = await conn.warnings.findMany({ where: { UserID: member.id, GuildID: member.guild.id }, orderBy: { Date: "asc" } })

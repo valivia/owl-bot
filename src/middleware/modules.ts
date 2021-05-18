@@ -1,6 +1,6 @@
 import { Client, Guild, GuildChannel, GuildMember, Role, User } from "discord.js";
 import { ICommands } from "../interfaces";
-import { CronJob } from "cron";
+import axios from "axios";
 
 export async function getUser(client: Client, userID: string): Promise<User | null> {
     let user;
@@ -62,6 +62,15 @@ export function getCommand(client: Client, name: string) {
     const command = cmdAlias !== undefined ? cmdAlias : (cmd !== undefined ? cmd : undefined);
 
     return command
+}
+
+export async function accountExists(username: string): Promise<boolean | string> {
+    let code = false;
+    await axios.get(`https://api.mojang.com/users/profiles/minecraft/${username}`)
+        .then(response => {
+            code = response.status === 200 ? response.data.id : false;
+        })
+    return code;
 }
 
 export let defaultErr = { type: "text", content: "an error occured" };
