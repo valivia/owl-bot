@@ -1,12 +1,12 @@
 import colors from "colors";
 colors.enable();
 
-import axios from "axios";
 import { Client, Guild, User } from "discord.js";
 import { Rcon } from "rcon-client";
 import settings from "../../settings.json"
 import logHandler from "../middleware/logHandler";
 import { logType } from "../interfaces";
+import { getName } from "../middleware/modules";
 
 export const name = "guildBanAdd";
 
@@ -49,13 +49,4 @@ export default function guildBanAdd(client: Client) {
             return;
         }
     };
-}
-
-async function getName(uuid: string) {
-    let userName = false;
-    await axios.get(`https://sessionserver.mojang.com/session/minecraft/profile/${uuid}`)
-        .then(response => {
-            userName = response.status === 200 ? response.data.name : false;
-        })
-    return userName;
 }

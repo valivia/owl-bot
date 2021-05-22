@@ -16,6 +16,7 @@ module.exports = {
 
     async execute(author: User | GuildMember, _undefined: undefined, client: Client): Promise<Iresponse> {
         if ("user" in author) author = author.user
+
         const embed = new MessageEmbed()
             .addFields(
                 { name: "Users", value: client.users.cache.size, inline: true },

@@ -40,7 +40,7 @@ module.exports = {
             let cmds = "";
             for (const [, { name, description, disabled }] of commands) {
                 if (disabled && author.id !== Options.owner) { continue; }
-                cmds += `\n**${name}:** ${description}`;
+                cmds += `\n**${disabled ? "-" : ""}${name}:** ${description}`;
             }
             const list = new MessageEmbed()
                 .setTitle("Available commands")

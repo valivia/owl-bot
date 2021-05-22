@@ -1,5 +1,5 @@
 import { Client, GuildMember, MessageEmbed } from "discord.js";
-import moment, { MomentInput } from "moment";
+import moment from "moment";
 import { argType, Iresponse } from "../../interfaces";
 
 module.exports = {
@@ -40,7 +40,6 @@ module.exports = {
             for (let warning of warnings) {
                 x++
                 // Get time.
-                console.log(warning);
                 let date = moment(Number(warning.Date)).fromNow();
                 // Add warning to the list.
                 warns.push({ name: `${x}`, value: `**mod:** <@!${warning.ModID}>\n **reason:** ${warning.Reason}\n **Date:** ${date}` })

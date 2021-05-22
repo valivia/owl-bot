@@ -23,7 +23,15 @@ module.exports = {
             "description": "which mc name to add",
             "default": false,
             "required": true
-        }
+        },
+        {
+            "type": argType.user,
+            "name": "member",
+            "description": "which user to whitelist",
+            "default": false,
+            "required": false
+        },
+
     ],
 
     throttling: {
@@ -31,17 +39,18 @@ module.exports = {
         usages: 2,
     },
 
-    async execute(author: GuildMember, { username }: { username: string }, { conn }: Client): Promise<Iresponse> {
+    async execute(author: GuildMember, { username, member }: { username: string, member: GuildMember }, { conn }: Client): Promise<Iresponse> {
         try {
             username = username.substr(0, 64);
+            console.log(member.id);
+            const userID = member.id !== undefined ? member.id : author.id
             // Check if right server.
             if (author.guild.id !== "823993381591711786") return { type: "disabled", content: "Not allowed in this guild." };
 
             // Check if sub.
-            if (!author.roles.cache.has("841690912748208158")) return { type: "text", content: "You have to be a sub to use this command." };
-
-            // rcon connect.
-            const rcon = await Rcon.connect({ host: settings.rcon.host, port: settings.rcon.port, password: settings.rcon.pass });
+            if (!author.roles.cache.has("841690912748208158") && author.id !== settings.Options.owner) {
+                return { type: "text", content: "You have to be a sub to use this command." };
+            };
 
             // Check if account exists.
             const id = await accountExists(username);
@@ -53,13 +62,15 @@ module.exports = {
             const query = await conn.whitelist.findFirst({
                 where: {
                     OR: [
-                        { UserID: author.id, },
+                        { UserID: userID, },
                         { UUID: id as string }
                     ],
                 },
-            })
+            });
 
             if (query !== null) return { type: "text", content: "You already have an account linked." };
+            // rcon connect.
+            const rcon = await Rcon.connect({ host: settings.rcon.host, port: settings.rcon.port, password: settings.rcon.pass });
 
             // Try to whitelist.
             const response = await rcon.send(`whitelist add ${username}`);
@@ -69,7 +80,14 @@ module.exports = {
             if (response === "Player is already whitelisted") return { type: "text", content: "That name is already whitelisted" };
 
             // Add to db.
-            await conn.whitelist.create({ data: { UserID: author.id, UUID: id as string, Date: Date.now() } })
+            await conn.whitelist.create({ data: { UserID: userID, UUID: id as string, Date: Date.now(), Permanent: member.id !== undefined ? true : false } });
+
+            // Give role.
+            if (member.id !== undefined) {
+                member.roles.add("840565782361407553");
+            } else {
+                author.roles.add("840565782361407553");
+            }
 
             // Log it.
             logHandler("Whitelisted", `${username} was added to the whitelist ${id}`, author.user, logType.good);

@@ -44,9 +44,11 @@ module.exports = {
                     console.log(e);
                     return { type: "text", content: "an error occured" };
                 });
+
+            const warnCount = await conn.warnings.count({ where: { UserID: member.id, GuildID: member.guild.id } })
             // make embed.
             let embed = new MessageEmbed()
-                .setAuthor(`${member.user.username}#${member.user.discriminator} has been warned`)
+                .setAuthor(`${member.user.username}#${member.user.discriminator} has been warned, ${warnCount} total`)
                 .setDescription(`**reason:** ${reason}`)
                 .setColor(5362138);
 

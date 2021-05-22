@@ -6,7 +6,7 @@ import discord from "discord.js";
 
 import settings from "../settings.json";
 import { getCommands, runCommand } from "./middleware/commandhandler";
-import { getMember, getUser } from "./middleware/modules";
+import { getMember, getUser, subLoop } from "./middleware/modules";
 import { fetchChannel } from "./middleware/logHandler"
 import { PrismaClient } from ".prisma/client";
 
@@ -48,11 +48,15 @@ export default function discordBot(db: PrismaClient) {
                 })
 
             console.log(` > Client ready, logged in as ${client.user.username}#${client.user.discriminator} (${client.user.id})`.magenta);
+
+            subLoop(client);
+
         })
         .on("disconnect", () => {
             console.warn("Disconnected!");
             process.exit();
         })
+        //.on("debug", (e) => { console.debug(e) })
         .ws.on("INTERACTION_CREATE", async interaction => {
             // console.log(interaction);
             let args = []
