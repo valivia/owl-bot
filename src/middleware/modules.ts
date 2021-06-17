@@ -1,8 +1,9 @@
 import { Client, Guild, GuildChannel, GuildMember, Role, User } from "discord.js";
-import { ICommands } from "../interfaces";
+import { ICommands, IWhitelist, logType, whitelistType } from "../interfaces";
 import axios from "axios";
 import { Rcon } from "rcon-client/lib";
 import settings from "../../settings.json"
+import logHandler from "./logHandler";
 
 export async function getUser(client: Client, userID: string): Promise<User | null> {
     let user;
@@ -88,52 +89,49 @@ export async function getName(uuid: string) {
 
 export async function subLoop(client: Client) {
     const db = client.conn;
-    // Get guild.
     const guild = await getGuild(client, "823993381591711786");
-    // Get all guild members.
     const members = await guild?.members.fetch();
-    // Return if error.
     if (members === undefined) { return; }
-
-    // Get from db.
     const users = await db.whitelist.findMany({ where: { Permanent: false } });
-
-    // rcon connect.
-    const rcon = await Rcon.connect({ host: settings.rcon.host, port: settings.rcon.port, password: settings.rcon.pass });
+    let rconActions: IWhitelist[] = [];
 
     for (let user of users) {
-        // Get guild members.
         let member: GuildMember = await members.find(({ id }: { id: string }) => id === user.UserID);
-        // Check if sub.
-        const isSub = member.roles.cache.has("841690912748208158");
-
-        // Skip if nothing changed.
-        if ((!isSub && user.Expired) || (isSub && !user.Expired)) {
+        if (member === undefined) {
+            user.Expired = true;
+            console.log(`User left, removing from whitelist`);
+            rconActions.push({ UUID: user.UUID, type: whitelistType.del });
+            await db.whitelist.delete({ where: { UserID: user.UserID } });
             continue;
         }
-        // Whitelist if sub again.
+        const isSub = member.roles.cache.has("841690912748208158");
+        if ((!isSub && user.Expired) || (isSub && !user.Expired)) continue;
         if (isSub && user.Expired) {
             user.Expired = false
+            rconActions.push({ UUID: user.UUID, type: whitelistType.add })
             console.log(`Added ${member.user.tag} - ${member.id} to the whitelist`)
+            logHandler("Whitelist remove", `Added ${member.user.tag} to the whitelist`, member.user, logType.good);
         } else {
-            // Remove whitelist.
             user.Expired = true;
-            console.log(`Removed ${member.user.tag} - ${member.id} from the whitelist`)
+            rconActions.push({ UUID: user.UUID, type: whitelistType.del })
+            logHandler("Whitelist remove", `Removed ${member.user.tag} from the whitelist`, member.user, logType.bad);
         }
-
-        // Get mc name.
-        const username = await getName(user.UUID);
-        // Check if successfull.
-        if (!username) { console.log(`COULDNT FIND USER ${user.UUID}`); continue; }
-        // Try to whitelist.
-        const response = await rcon.send(`whitelist ${user.Expired ? "remove" : "add"} ${username}`);
-        // Log.
-        console.log(response);
-
-        // push to db.
         await db.whitelist.update({ where: { UserID: user.UserID }, data: { Expired: user.Expired } })
         continue;
     }
-    // End connection.
+
+    whitelist(rconActions);
+}
+
+export async function whitelist(content: IWhitelist[]) {
+    if (content.length == 0) return;
+    const rcon = await Rcon.connect({ host: settings.rcon.host, port: settings.rcon.port, password: settings.rcon.pass })
+        .catch()
+    for (let user of content) {
+        const username = await getName(user.UUID);
+        if (!username) { console.log(`COULDNT FIND USER ${user.UUID}`); continue; }
+        const response = await rcon.send(`${user.type} ${username}`);
+        console.log(response);
+    }
     rcon.end();
 }

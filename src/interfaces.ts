@@ -35,6 +35,15 @@ export interface Iresponse {
     content: string | {}
 }
 
+export interface IWhitelist {
+    type: string;
+    UUID: string;
+}
+
+export enum whitelistType {
+    add = "whitelist add",
+    del = "whitelist remove"
+}
 export enum logType {
     good = "#559b0f",
     bad = "#F50303",

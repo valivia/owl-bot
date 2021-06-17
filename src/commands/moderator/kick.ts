@@ -1,4 +1,4 @@
-import { Client, GuildMember, MessageEmbed } from "discord.js";
+import { GuildMember, MessageEmbed } from "discord.js";
 import { argType, Iresponse, logType } from "../../interfaces";
 import logHandler from "../../middleware/logHandler";
 

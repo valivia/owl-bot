@@ -7,7 +7,6 @@ import discord from "discord.js";
 import settings from "../settings.json";
 import { getCommands, runCommand } from "./middleware/commandhandler";
 import { getMember, getUser, subLoop } from "./middleware/modules";
-import { fetchChannel } from "./middleware/logHandler"
 import { PrismaClient } from ".prisma/client";
 
 export default function discordBot(db: PrismaClient) {
@@ -21,6 +20,9 @@ export default function discordBot(db: PrismaClient) {
             if (client.user === null) { return; }
             // setTimeout(loop, 1000);
             client.conn = db;
+            for (let guild in client.guilds.cache) {
+                console.log(guild.name);
+            }
             await client.user.setActivity(`for ${client.guilds.cache.size} servers`, {
                 type: "STREAMING",
                 url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
@@ -28,8 +30,6 @@ export default function discordBot(db: PrismaClient) {
 
             // initiate command list.
             getCommands(client);
-            // initiate logHandler.
-            fetchChannel(client);
             // Initiate events.
             fs.promises
                 .readdir('./src/events/')
