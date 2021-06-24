@@ -22,7 +22,7 @@ export default async function logHandler(title: string, context: string, author:
 
 
     // send.
-    channel.send(embed)
+    // channel.send(embed)
     return;
 }
 

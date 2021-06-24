@@ -49,7 +49,7 @@ export default function discordBot(db: PrismaClient) {
 
             console.log(` > Client ready, logged in as ${client.user.username}#${client.user.discriminator} (${client.user.id})`.magenta);
 
-            subLoop(client);
+            // subLoop(client);
 
         })
         .on("disconnect", () => {

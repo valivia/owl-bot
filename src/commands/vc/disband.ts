@@ -1,11 +1,11 @@
-import { Client, GuildMember } from "discord.js";
+import { Client, GuildMember, VoiceChannel } from "discord.js";
 import { defaultErr } from "../../middleware/modules";
 module.exports = {
     name: "disband",
     aliases: [""],
-    description: "creates a new priv room.",
-    examples: ["create myPrivateRoom"],
-    group: "moderator",
+    description: "Remove your private room.",
+    examples: [""],
+    group: "vc",
 
     guildOnly: true,
     adminOnly: false,
@@ -17,28 +17,35 @@ module.exports = {
     },
 
     async execute(author: GuildMember, _: undefined, client: Client) {
-        let conn = client.conn;
+        let db = client.conn;
         try {
-            let userChannel = await conn.query("SELECT * FROM `VoiceChannels` WHERE `UserID` = ? AND `GuildID` = ?", [author.id, author.guild.id])
-            userChannel = userChannel[0];
+            let result = await db.voiceChannels.update({
+                where: {
+                    UserID: author.id
+                },
+                data: {
+                    UserID: null,
+                    Open: true,
+                    VCMembers: {
+                        deleteMany: {}
+                    }
+                }
+            }).catch(() => {
+                return false
+            })
 
-            // Check if user has a vc.
-            if (userChannel == undefined) {
-                return { type: "content", content: "You dont have an active private voicechat" }
+            if (typeof (result) === "boolean") {
+                return { type: "content", content: "You dont have a private room." };
             }
 
-            // delete vc from db.
-            await conn.query("UPDATE `VoiceChannels` SET UserID = NULL, Date = NULL, Open = 1 WHERE `UserID` = ? AND `GuildID` = ?", [author.id, author.guild.id]);
-            await conn.query("DELETE FROM VCMembers WHERE ChannelID = ?", userChannel.ChannelID)
+            let channel: VoiceChannel | null = author.voice.channel
 
-            // Check if in vc.
-            if (author.voice.channel !== null && author?.voice.channel.id == userChannel.ChannelID) {
-                // kick from vc
-                author?.voice.channel.members.each((member: { voice: { kick: () => void; }; }) => {
-                    member.voice.kick();
-                });
+            if (channel === null || channel.id !== result.ChannelID) {
+                channel = await client.channels.fetch(result.ChannelID) as VoiceChannel;
             }
-            // Send message
+
+            channel.members.each((member: { voice: { kick: () => void; }; }) => { member.voice.kick(); });
+
             return { type: "content", content: "voice channel disbanded" };
         } catch (e) {
             console.log(e);

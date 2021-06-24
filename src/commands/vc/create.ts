@@ -48,11 +48,7 @@ module.exports = {
             }
 
             // Add to db.
-            await conn.query("INSERT INTO `VoiceChannels` (ChannelID, GuildID) VALUES(?,?)", [channel.id, author.guild.id])
-                .catch(err => {
-                    console.log(err)
-                    return defaultErr
-                })
+            await conn.voiceChannels.create({ data: { ChannelID: channel.id, GuildID: author.guild.id } });
 
             // Send message
             return { type: "text", content: "Channel added to db" };

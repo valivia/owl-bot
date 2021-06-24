@@ -29,33 +29,43 @@ module.exports = {
             }
 
             // Query db for user's active vcs.
-            let userChannel = await conn.query("SELECT * FROM VoiceChannels WHERE `UserID` = ? AND `GuildID` = ?", [author.id, author.guild.id]);
-            userChannel = userChannel[0];
+            let channel = await conn.voiceChannels.findFirst({
+                where: {
+                    OR: [
+                        { UserID: author.id, GuildID: author.guild.id },
+                        { UserID: null, GuildID: author.guild.id }
+                    ]
+                }
+            });
 
-            if (userChannel !== undefined) {
-                // Move user into vc.
-                author.voice.setChannel(userChannel.ChannelID);
-                // Send message.
-                return { type: "content", content: "moved back into your vc" }
-            }
-
-            // Query open voicechannels
-            let openChannels = await conn.query("SELECT * FROM VoiceChannels WHERE UserID IS NULL AND GuildID = ?", [author.guild.id]);
-            openChannels = openChannels[0];
-
-            // Check if available channels.
-            if (openChannels === undefined || openChannels.length == 0) {
+            if (!channel) {
                 return { type: "content", content: "There are no more private rooms available." };
             }
 
-            // Update db.
-            await conn.query("UPDATE VoiceChannels SET UserID = ?, Date = ? WHERE ChannelID = ?", [author.id, Date.now(), openChannels.ChannelID]);
+            if (channel.UserID) {
+                // Move user into vc.
+                author.voice.setChannel(channel.ChannelID);
+                // Send message.
+                return { type: "content", content: "moved back into your vc" }
+            }
+            
+            await conn.voiceChannels.update({
+                where: {
+                    ChannelID: channel.ChannelID
+                },
+                data: {
+                    UserID: author.id,
+                    VCMembers: {
+                        create: {
+                            UserID: author.id
+                        }
+                    }
+                },
 
-            // Add user to db.
-            await conn.query("INSERT INTO VCMembers (UserID, ChannelID, Date) VALUES (?,?,?)", [author.id, openChannels.ChannelID, Date.now()]);
+            });
 
             // Move user into private vc.
-            author.voice.setChannel(openChannels.ChannelID);
+            author.voice.setChannel(channel.ChannelID);
 
             // Log
             logHandler("vc assigned", "a vc was assigned", author.user, logType.good);

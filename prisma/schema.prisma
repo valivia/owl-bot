@@ -17,34 +17,34 @@ model Commands {
 model VCMembers {
   UserID        String        @db.VarChar(18)
   ChannelID     String        @db.VarChar(18)
-  Date          BigInt
+  Created       DateTime      @default(now()) @db.Timestamp(0)
   VoiceChannels VoiceChannels @relation(fields: [ChannelID], references: [ChannelID])
 
   @@id([ChannelID, UserID])
 }
 
 model VoiceChannels {
-  UserID    String?     @db.VarChar(18)
-  ChannelID String      @id @db.VarChar(18)
-  Date      BigInt?
-  Open      Boolean     @default(true)
-  GuildID   String      @db.VarChar(18)
-  VCMembers VCMembers[]
+  UserID     String?     @unique @db.VarChar(18)
+  ChannelID  String      @id @db.VarChar(18)
+  LastUpdate DateTime?   @default(now()) @db.Timestamp(0)
+  Open       Boolean     @default(true)
+  GuildID    String      @db.VarChar(18)
+  VCMembers  VCMembers[]
 }
 
 model Warnings {
-  UserID  String  @db.VarChar(18)
-  Reason  String? @db.Text
-  Date    BigInt  @db.UnsignedBigInt
-  GuildID String  @db.VarChar(18)
-  ModID   String  @db.VarChar(18)
-  id      Int     @id @default(autoincrement())
+  UserID  String   @db.VarChar(18)
+  Reason  String?  @db.Text
+  Created DateTime @default(now()) @db.Timestamp(0)
+  GuildID String   @db.VarChar(18)
+  ModID   String   @db.VarChar(18)
+  id      Int      @id @default(autoincrement())
 }
 
 model Whitelist {
-  UserID    String  @unique @db.VarChar(18)
-  UUID      String  @unique @db.VarChar(32)
-  Date      BigInt
-  Permanent Boolean @default(false)
-  Expired   Boolean @default(false)
+  UserID    String   @unique @db.VarChar(18)
+  UUID      String   @unique @db.VarChar(32)
+  Created   DateTime @default(now()) @db.Timestamp(0)
+  Permanent Boolean  @default(false)
+  Expired   Boolean  @default(false)
 }
