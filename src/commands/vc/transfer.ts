@@ -1,10 +1,10 @@
+import { PrismaClient } from "@prisma/client";
 import { Message, User } from "discord.js";
-import { Connection } from "mariadb";
 module.exports = {
     name: "transfer",
 
     aliases: [""],
-    description: "trasnfer ownership",
+    description: "transfer ownership",
     examples: [""],
     group: "vc",
     guildOnly: true,
@@ -15,7 +15,7 @@ module.exports = {
         usages: 3,
     },
 
-    async execute(msg: Message, args: object[], conn: Connection) {
+    async execute(msg: Message, args: object[], conn: PrismaClient) {
         try {
             const pingedUser = args[0] as User;
             let userChannel = await conn.query("SELECT * FROM `VoiceChannels` WHERE `UserID` = ?", msg.author.id)

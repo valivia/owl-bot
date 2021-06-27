@@ -1,5 +1,6 @@
+import { Logs_Event } from "@prisma/client";
 import { GuildMember, MessageEmbed } from "discord.js";
-import { argType, Iresponse, logType } from "../../interfaces";
+import { argType, Iresponse } from "../../interfaces";
 import logHandler from "../../middleware/logHandler";
 
 module.exports = {
@@ -45,7 +46,7 @@ module.exports = {
                 .setDescription(`**reason:** ${reason}`)
                 .setColor(5362138)
 
-            logHandler("kicked", `kicked for ${reason}`, member.user, logType.neutral, author.user)
+            logHandler(Logs_Event.Kick, author.guild.id, member.user, reason, author.user);
             // send embed.
             return { type: "embed", content: embed };
         } catch (e) {

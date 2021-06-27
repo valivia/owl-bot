@@ -31,7 +31,7 @@ module.exports = {
     async execute(author: GuildMember, { member }: { member: GuildMember }, { conn }: Client): Promise<Iresponse> {
         try {
             // Get from DB.
-            const warnings = await conn.warnings.findMany({ where: { UserID: member.id, GuildID: member.guild.id }, orderBy: { Date: "asc" } })
+            const warnings = await conn.warnings.findMany({ where: { UserID: member.id, GuildID: member.guild.id }, orderBy: { Created: "asc" } })
 
             // Vars.
             let x = 0;
@@ -40,7 +40,7 @@ module.exports = {
             for (let warning of warnings) {
                 x++
                 // Get time.
-                let date = moment(Number(warning.Date)).fromNow();
+                let date = moment(Number(new Date(warning.Created))).fromNow();
                 // Add warning to the list.
                 warns.push({ name: `${x}`, value: `**mod:** <@!${warning.ModID}>\n **reason:** ${warning.Reason}\n **Date:** ${date}` })
 

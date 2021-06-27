@@ -56,10 +56,12 @@ export default function message(client: Client) {
             }
 
             // yeet through command handler.
-            let response = await runCommand(user, commandName, args, client);
+            let response = await runCommand(user, commandName, args, client, msg);
+
             if (response.type === "disabled") {
                 return;
             }
+
             msg.channel.send(response.content);
 
         } catch (error) {

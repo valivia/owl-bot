@@ -1,4 +1,6 @@
-import { Client, GuildMember, VoiceChannel } from "discord.js";
+import { Logs_Event } from "@prisma/client";
+import { Client, GuildMember, Message, VoiceChannel } from "discord.js";
+import logHandler from "../../middleware/logHandler";
 import { defaultErr } from "../../middleware/modules";
 module.exports = {
     name: "disband",
@@ -35,7 +37,7 @@ module.exports = {
             })
 
             if (typeof (result) === "boolean") {
-                return { type: "content", content: "You dont have a private room." };
+                return { type: "content", content: "You dont have a private room.", callBack: true };
             }
 
             let channel: VoiceChannel | null = author.voice.channel
@@ -46,6 +48,8 @@ module.exports = {
 
             channel.members.each((member: { voice: { kick: () => void; }; }) => { member.voice.kick(); });
 
+            logHandler(Logs_Event.Room_Host, author.guild.id, author.user, channel.id);
+
             return { type: "content", content: "voice channel disbanded" };
         } catch (e) {
             console.log(e);
@@ -53,3 +57,7 @@ module.exports = {
         }
     },
 };
+
+export function callback(msg: Message) {
+    console.log(msg.content);
+}

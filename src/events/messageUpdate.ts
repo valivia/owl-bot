@@ -1,3 +1,4 @@
+import { Logs_Event } from "@prisma/client";
 import { Client, Message, PartialMessage, User } from "discord.js";
 import logHandler from "../middleware/logHandler";
 
@@ -9,13 +10,11 @@ export default function guildAdd(_client: Client) {
     return async (oldmsg: Message | PartialMessage, newmsg: Message | PartialMessage) => {
         try {
             if (oldmsg.author?.bot) { return; };
-            // check if messaged actually changed.
+            if (oldmsg.guild === null) { return; }
+            if (oldmsg.content === null) { return; }
             if (oldmsg.content === newmsg.content) { return; }
 
-            // check if there is a message.
-            if (oldmsg.content === null) { return; }
-
-            logHandler("Message update", oldmsg.content.length !== 0 ? oldmsg.content : "no content", oldmsg.author as User, 1);
+            logHandler(Logs_Event.Message_Update, oldmsg.guild.id, oldmsg.author as User);
 
             console.log(`Message update \n from: ${oldmsg.content} \n to: ${newmsg.content}`);
         } catch (e) {

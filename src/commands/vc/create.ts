@@ -1,4 +1,4 @@
-import { Client, GuildMember, VoiceChannel } from "discord.js";
+import { Client, GuildCreateChannelOptions, GuildMember, VoiceChannel } from "discord.js";
 import { argType, Iresponse } from "../../interfaces";
 import { defaultErr } from "../../middleware/modules";
 
@@ -31,7 +31,7 @@ module.exports = {
     async execute(author: GuildMember, { channelName }: { channelName: string }, client: Client): Promise<Iresponse> {
         let conn = client.conn;
         try {
-            let options = {
+            let options: GuildCreateChannelOptions = {
                 type: 'voice',
                 permissionOverwrites: [{
                     id: author.guild.id,

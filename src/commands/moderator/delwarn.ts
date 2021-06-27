@@ -45,18 +45,17 @@ module.exports = {
                     UserID: member.id,
                     GuildID: member.guild.id,
                 },
-                orderBy: { Date: "asc" },
+                orderBy: { Created: "asc" },
                 skip: number - 1
             });
 
             if (query === null) return { type: "content", content: "Out of bounds." }
 
-            await conn.warnings.delete({ where: { id: query.id } })
+            await conn.warnings.delete({ where: { ID: query.ID } })
 
             let embed = new MessageEmbed()
-                .setAuthor(`${member.user.username}#${member.user.discriminator}'s warning was removed`)
+                .setAuthor(`${member.user.username}#${member.user.discriminator}'s ${number}${number > 1 ? "nd" : "st"} warning was removed`)
                 .setColor(5362138)
-
 
             return { type: "embed", content: embed }
         } catch (e) {

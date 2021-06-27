@@ -1,30 +1,13 @@
-import { Client, Guild, GuildChannel, GuildMember, Role, User } from "discord.js";
-import { ICommands, IWhitelist, logType, whitelistType } from "../interfaces";
+import { Client, GuildChannel, GuildMember, Role } from "discord.js";
+import { ICommands, IWhitelist, whitelistType } from "../interfaces";
 import axios from "axios";
 import { Rcon } from "rcon-client/lib";
 import settings from "../../settings.json"
 import logHandler from "./logHandler";
-
-export async function getUser(client: Client, userID: string): Promise<User | null> {
-    let user;
-    user = client.users.resolve(userID)
-    if (user === null) {
-        user = await client.users.fetch(userID)
-    }
-    return user;
-}
-
-export async function getGuild(client: Client, guildID: string): Promise<Guild | null> {
-    let guild;
-    guild = client.guilds.resolve(guildID)
-    if (guild === null) {
-        guild = await client.guilds.fetch(guildID)
-    }
-    return guild;
-}
+import { Logs_Event } from "@prisma/client";
 
 export async function getMember(client: Client, guildID: string, userID: string): Promise<GuildMember | null> {
-    let guild = await getGuild(client, guildID)
+    let guild = await client.guilds.fetch(guildID);
     if (guild === null) { return null; }
 
     let member;
@@ -36,7 +19,7 @@ export async function getMember(client: Client, guildID: string, userID: string)
 }
 
 export async function getChannel(client: Client, guildID: string, channelID: string): Promise<GuildChannel | null> {
-    let guild = await getGuild(client, guildID)
+    let guild = await client.guilds.fetch(guildID);
     if (guild === null) { return null; }
 
     let channel;
@@ -46,7 +29,7 @@ export async function getChannel(client: Client, guildID: string, channelID: str
 }
 
 export async function getRole(client: Client, guildID: string, roleID: string): Promise<Role | null> {
-    let guild = await getGuild(client, guildID)
+    let guild = await client.guilds.fetch(guildID);
     if (guild === null) { return null; }
 
     let role;
@@ -89,7 +72,7 @@ export async function getName(uuid: string) {
 
 export async function subLoop(client: Client) {
     const db = client.conn;
-    const guild = await getGuild(client, "823993381591711786");
+    const guild = await client.guilds.fetch("823993381591711786");
     const members = await guild?.members.fetch();
     if (members === undefined) { return; }
     const users = await db.whitelist.findMany({ where: { Permanent: false } });
@@ -109,12 +92,12 @@ export async function subLoop(client: Client) {
         if (isSub && user.Expired) {
             user.Expired = false
             rconActions.push({ UUID: user.UUID, type: whitelistType.add })
-            console.log(`Added ${member.user.tag} - ${member.id} to the whitelist`)
-            logHandler("Whitelist remove", `Added ${member.user.tag} to the whitelist`, member.user, logType.good);
+            console.log(`Added ${member.user.tag} - ${member.id} to the whitelist`);
+            logHandler(Logs_Event.Whitelist_Add, guild?.id as string, member.user, `Added ${member.user.tag} to the whitelist`);
         } else {
             user.Expired = true;
             rconActions.push({ UUID: user.UUID, type: whitelistType.del })
-            logHandler("Whitelist remove", `Removed ${member.user.tag} from the whitelist`, member.user, logType.bad);
+            logHandler(Logs_Event.Whitelist_Add, guild?.id as string, member.user, `Removed ${member.user.tag} from the whitelist`);
         }
         await db.whitelist.update({ where: { UserID: user.UserID }, data: { Expired: user.Expired } })
         continue;

@@ -29,16 +29,22 @@ model VoiceChannels {
   LastUpdate DateTime?   @default(now()) @db.Timestamp(0)
   Open       Boolean     @default(true)
   GuildID    String      @db.VarChar(18)
+  Settings   Settings    @relation(fields: [GuildID], references: [GuildID])
   VCMembers  VCMembers[]
+
+  @@index([GuildID], name: "VoiceChannels_FK")
 }
 
 model Warnings {
-  UserID  String   @db.VarChar(18)
-  Reason  String?  @db.Text
-  Created DateTime @default(now()) @db.Timestamp(0)
-  GuildID String   @db.VarChar(18)
-  ModID   String   @db.VarChar(18)
-  id      Int      @id @default(autoincrement())
+  UserID   String   @db.VarChar(18)
+  Reason   String?  @db.Text
+  Created  DateTime @default(now()) @db.Timestamp(0)
+  GuildID  String   @db.VarChar(18)
+  ModID    String   @db.VarChar(18)
+  ID       Int      @id @default(autoincrement())
+  Settings Settings @relation(fields: [GuildID], references: [GuildID])
+
+  @@index([GuildID], name: "Warnings_FK")
 }
 
 model Whitelist {
@@ -47,4 +53,49 @@ model Whitelist {
   Created   DateTime @default(now()) @db.Timestamp(0)
   Permanent Boolean  @default(false)
   Expired   Boolean  @default(false)
+  GuildID   String   @db.VarChar(18)
+  Settings  Settings @relation(fields: [GuildID], references: [GuildID])
+
+  @@index([GuildID], name: "Whitelist_FK")
+}
+
+model Settings {
+  GuildID       String          @id @db.VarChar(18)
+  Created       DateTime        @default(now()) @db.Timestamp(0)
+  LogChannel    String?         @db.VarChar(18)
+  Logs          Logs[]
+  VoiceChannels VoiceChannels[]
+  Warnings      Warnings[]
+  Whitelist     Whitelist[]
+}
+
+model Logs {
+  ID       Int        @id @default(autoincrement())
+  Created  DateTime   @default(now()) @db.Timestamp(0)
+  UserID   String?    @db.VarChar(18)
+  GuildID  String     @db.VarChar(18)
+  ModID    String?    @db.VarChar(18)
+  Event    Logs_Event
+  Content  String?    @db.VarChar(256)
+  Settings Settings   @relation(fields: [GuildID], references: [GuildID])
+
+  @@index([GuildID], name: "Logs_FK")
+}
+
+enum Logs_Event {
+  Whitelist_Add
+  Whitelist_Remove
+  Guild_Add
+  Guild_Remove
+  Ban
+  Unban
+  Kick
+  Warn_Add
+  Warn_Remove
+  Message_Delete
+  Message_Update
+  Member_Join
+  Member_Leave
+  Room_Host
+  Room_Disband
 }

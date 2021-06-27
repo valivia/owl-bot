@@ -1,5 +1,5 @@
+import { Logs_Event } from "@prisma/client";
 import { Client, GuildMember, MessageEmbed } from "discord.js";
-import { logType } from "../../interfaces";
 import logHandler from "../../middleware/logHandler";
 import { defaultErr } from "../../middleware/modules";
 
@@ -48,7 +48,7 @@ module.exports = {
                 // Send message.
                 return { type: "content", content: "moved back into your vc" }
             }
-            
+
             await conn.voiceChannels.update({
                 where: {
                     ChannelID: channel.ChannelID
@@ -68,7 +68,7 @@ module.exports = {
             author.voice.setChannel(channel.ChannelID);
 
             // Log
-            logHandler("vc assigned", "a vc was assigned", author.user, logType.good);
+            logHandler(Logs_Event.Room_Host, author.guild.id, author.user, channel.ChannelID);
 
             // Make embed
             const embed = new MessageEmbed()

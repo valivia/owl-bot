@@ -1,9 +1,10 @@
 import { Client, GuildMember } from "discord.js";
 import { Rcon } from "rcon-client";
-import { argType, Iresponse, logType } from "../../interfaces";
+import { argType, Iresponse } from "../../interfaces";
 import { accountExists, defaultErr } from "../../middleware/modules";
 import settings from "../../../settings.json"
 import logHandler from "../../middleware/logHandler";
+import { Logs_Event } from "@prisma/client";
 
 module.exports = {
     name: "whitelist",
@@ -80,7 +81,7 @@ module.exports = {
             if (response === "Player is already whitelisted") return { type: "text", content: "That name is already whitelisted" };
 
             // Add to db.
-            await conn.whitelist.create({ data: { UserID: userID, UUID: id as string, Date: Date.now(), Permanent: member.id !== undefined ? true : false } });
+            await conn.whitelist.create({ data: { UserID: userID, UUID: id as string, GuildID: author.guild.id, Permanent: member.id !== undefined ? true : false } });
 
             // Give role.
             if (member.id !== undefined) {
@@ -90,7 +91,7 @@ module.exports = {
             }
 
             // Log it.
-            logHandler("Whitelisted", `${username} was added to the whitelist ${id}`, author.user, logType.good);
+            logHandler(Logs_Event.Whitelist_Add, author.guild.id, author.user, id as string);
 
             // Respond.
             return { type: "text", content: "You've been whitelisted!" };

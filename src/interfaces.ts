@@ -1,4 +1,4 @@
-import { Client, GuildMember, User } from "discord.js";
+import { Client, GuildMember, Message, User } from "discord.js";
 
 export interface ICommands {
     name: string;
@@ -27,12 +27,13 @@ export interface ICommands {
 
     default: ICommands;
 
-    execute(member: GuildMember | User, args?: {}, client?: Client): Promise<Iresponse>;
+    execute(member: GuildMember | User, args?: {}, client?: Client, msg?: Message): Promise<Iresponse>;
 }
 
 export interface Iresponse {
     type: string;
-    content: string | {}
+    content: string | {};
+    callback?: boolean;
 }
 
 export interface IWhitelist {
@@ -43,11 +44,6 @@ export interface IWhitelist {
 export enum whitelistType {
     add = "whitelist add",
     del = "whitelist remove"
-}
-export enum logType {
-    good = "#559b0f",
-    bad = "#F50303",
-    neutral = "#b700ff"
 }
 
 export enum argType {

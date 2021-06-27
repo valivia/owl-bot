@@ -1,11 +1,11 @@
 import colors from "colors";
 colors.enable();
 
-import { Client, Collection, GuildMember, User } from "discord.js";
+import { Client, Collection, GuildMember, Message, User } from "discord.js";
 import fs from "fs";
 import { ICommands, Iresponse } from "../interfaces";
 import settings from "../../settings.json";
-import { defaultErr, getChannel, getCommand, getMember, getRole, getUser } from "./modules";
+import { defaultErr, getChannel, getCommand, getMember, getRole } from "./modules";
 const options = settings.Options;
 
 export async function getCommands(client: Client) {
@@ -85,7 +85,7 @@ export async function getCommands(client: Client) {
     }
 }
 
-export async function runCommand(user: GuildMember | User | null, commandName: string, args: string[], client: Client): Promise<Iresponse> {
+export async function runCommand(user: GuildMember | User | null, commandName: string, args: string[], client: Client, msg?: Message): Promise<Iresponse> {
     // Try to find the command.
     let command = getCommand(client, commandName);
 
@@ -143,7 +143,7 @@ export async function runCommand(user: GuildMember | User | null, commandName: s
             }
             case 5: break;
             case 6: {
-                if (guild === undefined) { value = await getUser(client, input); }
+                if (guild === undefined) { value = await client.users.fetch(input); }
                 else { value = await getMember(client, guild.id, input); }
                 break;
             }
@@ -165,5 +165,5 @@ export async function runCommand(user: GuildMember | User | null, commandName: s
         continue;
     }
 
-    return await command.execute(user, commandArgs, client);
+    return await command.execute(user, commandArgs, client, msg);
 }

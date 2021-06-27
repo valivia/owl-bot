@@ -8,6 +8,7 @@ import settings from "../settings.json";
 import { getCommands, runCommand } from "./middleware/commandhandler";
 import { getMember, getUser, subLoop } from "./middleware/modules";
 import { PrismaClient } from ".prisma/client";
+import { initLog } from "./middleware/logHandler";
 
 export default function discordBot(db: PrismaClient) {
 
@@ -20,14 +21,14 @@ export default function discordBot(db: PrismaClient) {
             if (client.user === null) { return; }
             // setTimeout(loop, 1000);
             client.conn = db;
-            for (let guild in client.guilds.cache) {
-                console.log(guild.name);
-            }
+
             await client.user.setActivity(`for ${client.guilds.cache.size} servers`, {
                 type: "STREAMING",
                 url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
             });
 
+            // Init log
+            initLog(client);
             // initiate command list.
             getCommands(client);
             // Initiate events.
@@ -106,3 +107,11 @@ export default function discordBot(db: PrismaClient) {
 
     return client;
 }
+
+
+/*
+            client.guilds.cache.each(async (a: Guild) => {
+                console.log(a.name);
+                await client.conn.settings.create({ data: { GuildID: a.id } })
+            })
+            */
