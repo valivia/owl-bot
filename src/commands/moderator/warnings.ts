@@ -19,8 +19,8 @@ module.exports = {
             "name": "member",
             "description": "which user's warnings to display.",
             "default": false,
-            "required": true
-        }
+            "required": true,
+        },
     ],
 
     throttling: {
@@ -31,22 +31,22 @@ module.exports = {
     async execute(author: GuildMember, { member }: { member: GuildMember }, { conn }: Client): Promise<Iresponse> {
         try {
             // Get from DB.
-            const warnings = await conn.warnings.findMany({ where: { UserID: member.id, GuildID: member.guild.id }, orderBy: { Created: "asc" } })
+            const warnings = await conn.warnings.findMany({ where: { UserID: member.id, GuildID: member.guild.id }, orderBy: { Created: "asc" } });
 
             // Vars.
             let x = 0;
-            let warns = [];
+            const warns = [];
             // Loop through warnings
-            for (let warning of warnings) {
-                x++
+            for (const warning of warnings) {
+                x++;
                 // Get time.
-                let date = moment(Number(new Date(warning.Created))).fromNow();
+                const date = moment(Number(new Date(warning.Created))).fromNow();
                 // Add warning to the list.
-                warns.push({ name: `${x}`, value: `**mod:** <@!${warning.ModID}>\n **reason:** ${warning.Reason}\n **Date:** ${date}` })
+                warns.push({ name: `${x}`, value: `**mod:** <@!${warning.ModID}>\n **reason:** ${warning.Reason}\n **Date:** ${date}` });
 
             }
             // Make embed.
-            let embed = new MessageEmbed()
+            const embed = new MessageEmbed()
                 .setAuthor(`${member.user.tag} has ${warnings.length} warnings.`, member.user.avatarURL() as string)
                 .setColor(5362138)
                 .setTimestamp()

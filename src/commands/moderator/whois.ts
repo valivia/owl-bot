@@ -19,8 +19,8 @@ module.exports = {
             "name": "username",
             "description": "which mc user to check",
             "default": false,
-            "required": true
-        }
+            "required": true,
+        },
     ],
 
     throttling: {
@@ -39,7 +39,7 @@ module.exports = {
             if (!id) return { type: "text", content: "mc account doesn't exist" };
 
             // get username
-            const query = await client.conn.whitelist.findFirst({ where: { UUID: id as string } })
+            const query = await client.conn.whitelist.findFirst({ where: { UUID: id as string } });
 
             if (query === null) return { type: "text", content: "No account linked.." };
 

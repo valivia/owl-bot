@@ -20,15 +20,15 @@ module.exports = {
             "name": "member",
             "description": "User to kick",
             "default": false,
-            "required": true
+            "required": true,
         },
         {
             "type": argType.string,
             "name": "reason",
             "description": "Reason why the user is getting kicked",
             "default": false,
-            "required": false
-        }
+            "required": false,
+        },
     ],
 
     throttling: {
@@ -37,14 +37,14 @@ module.exports = {
     },
 
     async execute(author: GuildMember, { member, reason }: { member: GuildMember, reason: string }): Promise<Iresponse> {
-        if (reason === undefined) { reason = "No reason provided" }
+        if (reason === undefined) { reason = "No reason provided"; }
         try {
             member.kick(reason);
 
-            let embed = new MessageEmbed()
+            const embed = new MessageEmbed()
                 .setAuthor(`${member.user.username}#${member.user.discriminator} has been kicked`)
                 .setDescription(`**reason:** ${reason}`)
-                .setColor(5362138)
+                .setColor(5362138);
 
             logHandler(Logs_Event.Kick, author.guild.id, member.user, reason, author.user);
             // send embed.

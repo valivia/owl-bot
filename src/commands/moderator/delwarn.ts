@@ -19,15 +19,15 @@ module.exports = {
             "name": "member",
             "description": "which user's warning to remove.",
             "default": false,
-            "required": true
+            "required": true,
         },
         {
             "type": argType.integer,
             "name": "number",
             "description": "which warning.",
             "default": false,
-            "required": true
-        }
+            "required": true,
+        },
     ],
 
     throttling: {
@@ -36,8 +36,8 @@ module.exports = {
     },
 
     async execute(_author: GuildMember, { member, number }: { member: GuildMember, number: number }, client: Client): Promise<Iresponse> {
-        let conn = client.conn;
-        if (number < 1) { return { type: "content", content: "Invalid index" } }
+        const conn = client.conn;
+        if (number < 1) { return { type: "content", content: "Invalid index" }; }
 
         try {
             const query = await conn.warnings.findFirst({
@@ -46,18 +46,18 @@ module.exports = {
                     GuildID: member.guild.id,
                 },
                 orderBy: { Created: "asc" },
-                skip: number - 1
+                skip: number - 1,
             });
 
-            if (query === null) return { type: "content", content: "Out of bounds." }
+            if (query === null) return { type: "content", content: "Out of bounds." };
 
-            await conn.warnings.delete({ where: { ID: query.ID } })
+            await conn.warnings.delete({ where: { ID: query.ID } });
 
-            let embed = new MessageEmbed()
+            const embed = new MessageEmbed()
                 .setAuthor(`${member.user.username}#${member.user.discriminator}'s ${number}${number > 1 ? "nd" : "st"} warning was removed`)
-                .setColor(5362138)
+                .setColor(5362138);
 
-            return { type: "embed", content: embed }
+            return { type: "embed", content: embed };
         } catch (e) {
             console.error(e);
 

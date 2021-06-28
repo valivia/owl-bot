@@ -9,8 +9,10 @@ export const name = "guildMemberRemove";
 export default function guildMemberRemove(_client: Client) {
     return async (guild: Guild, user: User) => {
         try {
+            if (!guild) { return; }
+            if (!user) { return; }
             logHandler(Logs_Event.Member_Leave, guild.id, user);
-            console.log(`member left ${user.tag} - ${user.id}`)
+            console.log(`member left ${user.tag} - ${user.id}`);
             return;
         } catch (error) {
             console.error(error);

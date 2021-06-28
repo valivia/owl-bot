@@ -1,4 +1,4 @@
-import { Client, GuildMember, Message, User } from "discord.js";
+import { Client, GuildMember, Message, MessageEmbed, User } from "discord.js";
 
 export interface ICommands {
     name: string;
@@ -27,12 +27,12 @@ export interface ICommands {
 
     default: ICommands;
 
-    execute(member: GuildMember | User, args?: {}, client?: Client, msg?: Message): Promise<Iresponse>;
+    execute(member: GuildMember | User, args?: Array<any>, client?: Client, msg?: Message): Promise<Iresponse>;
 }
 
 export interface Iresponse {
     type: string;
-    content: string | {};
+    content: string | MessageEmbed;
     callback?: boolean;
 }
 

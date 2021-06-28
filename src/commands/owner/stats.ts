@@ -15,7 +15,7 @@ module.exports = {
 
 
     async execute(author: User | GuildMember, _undefined: undefined, client: Client): Promise<Iresponse> {
-        if ("user" in author) author = author.user
+        if ("user" in author) author = author.user;
 
         const embed = new MessageEmbed()
             .addFields(
@@ -29,6 +29,6 @@ module.exports = {
             .setColor("#FF0000")
             .setTimestamp();
 
-        return { type: "embed", content: embed }
+        return { type: "embed", content: embed };
     },
 };

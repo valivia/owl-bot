@@ -19,8 +19,8 @@ module.exports = {
             "name": "commandName",
             "description": "what command do you want info on?",
             "default": false,
-            "required": false
-        }
+            "required": false,
+        },
     ],
 
     throttling: {
@@ -32,7 +32,7 @@ module.exports = {
         const { commands } = client;
         let dm = true;
         if ("user" in author) {
-            author = author.user
+            author = author.user,
             dm = false;
         }
 
@@ -52,11 +52,11 @@ module.exports = {
                 .setColor("#FF0000")
                 .setTimestamp();
             // Send list directly if requested from dms.
-            if (dm) { return { type: "embed", content: list } }
+            if (dm) { return { type: "embed", content: list }; }
 
             // Dm list.
             await author.send(list)
-                .catch(_ => { return { type: "text", content: "Couldn't dm you." } });
+                .catch(_ => { return { type: "text", content: "Couldn't dm you." }; });
             // Send acknowledgement.
             return { type: "text", content: "Dm with info sent!" };
         }
@@ -65,7 +65,7 @@ module.exports = {
         const command = commands.get(cmdName) as ICommands || commands.find((c: { aliases: string | string[]; }) => c.aliases && c.aliases.includes(cmdName));
 
         if (command === undefined) {
-            return { type: "text", content: "invalid command.." }
+            return { type: "text", content: "invalid command.." };
         }
 
         const embed = new MessageEmbed()
@@ -78,6 +78,6 @@ module.exports = {
             .setColor("#FF0000")
             .setTimestamp();
 
-        return { type: "embed", content: embed }
+        return { type: "embed", content: embed };
     },
 };

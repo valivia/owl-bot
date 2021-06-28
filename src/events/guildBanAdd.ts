@@ -3,7 +3,7 @@ colors.enable();
 
 import { Client, Guild, User } from "discord.js";
 import { Rcon } from "rcon-client";
-import settings from "../../settings.json"
+import settings from "../../settings.json";
 import logHandler from "../middleware/logHandler";
 import { getName } from "../middleware/modules";
 import { Logs_Event } from "@prisma/client";
@@ -22,12 +22,12 @@ export default function guildBanAdd(client: Client) {
             if (guild.id !== "823993381591711786") return;
 
             // Query db.
-            let query = await conn.whitelist.findFirst({ where: { UserID: user.id } });
+            const query = await conn.whitelist.findFirst({ where: { UserID: user.id } });
 
             if (query === null) return;
 
             // Get username.
-            const username = await getName(query!.UUID);
+            const username = await getName(query.UUID);
 
             if (!username) {
                 console.log(`COULD NOT FETCH BANNED MEMBER'S NAME ${user.id}`.red.bold);

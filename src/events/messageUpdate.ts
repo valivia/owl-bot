@@ -9,7 +9,7 @@ export default function guildAdd(_client: Client) {
 
     return async (oldmsg: Message | PartialMessage, newmsg: Message | PartialMessage) => {
         try {
-            if (oldmsg.author?.bot) { return; };
+            if (oldmsg.author?.bot) { return; }
             if (oldmsg.guild === null) { return; }
             if (oldmsg.content === null) { return; }
             if (oldmsg.content === newmsg.content) { return; }

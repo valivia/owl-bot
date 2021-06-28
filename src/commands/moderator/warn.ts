@@ -21,15 +21,15 @@ module.exports = {
             "name": "member",
             "description": "User to warn",
             "default": false,
-            "required": true
+            "required": true,
         },
         {
             "type": argType.string,
             "name": "reason",
             "description": "Reason why the user is getting warned",
             "default": false,
-            "required": false
-        }
+            "required": false,
+        },
     ],
 
     throttling: {
@@ -38,7 +38,7 @@ module.exports = {
     },
 
     async execute(author: GuildMember, { member, reason }: { member: GuildMember, reason: string }, { conn }: Client): Promise<Iresponse> {
-        if (reason === undefined) { reason = "No reason provided" }
+        if (reason === undefined) { reason = "No reason provided"; }
         try {
             // insert into db.
             await conn.warnings.create({ data: { UserID: member.id, Reason: reason.substr(0, 256), GuildID: member.guild?.id, ModID: author.id } })
@@ -58,7 +58,7 @@ module.exports = {
             }
 
             // make embed.
-            let embed = new MessageEmbed()
+            const embed = new MessageEmbed()
                 .setAuthor(`${member.user.username}#${member.user.discriminator} has been warned, ${warnCount} total`)
                 .setDescription(`**reason:** ${reason}`)
                 .setColor(colour);

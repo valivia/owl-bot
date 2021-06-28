@@ -19,28 +19,28 @@ module.exports = {
     },
 
     async execute(author: GuildMember, _: undefined, client: Client) {
-        let db = client.conn;
+        const db = client.conn;
         try {
-            let result = await db.voiceChannels.update({
+            const result = await db.voiceChannels.update({
                 where: {
-                    UserID: author.id
+                    UserID: author.id,
                 },
                 data: {
                     UserID: null,
                     Open: true,
                     VCMembers: {
-                        deleteMany: {}
-                    }
-                }
+                        deleteMany: {},
+                    },
+                },
             }).catch(() => {
-                return false
-            })
+                return false;
+            });
 
             if (typeof (result) === "boolean") {
                 return { type: "content", content: "You dont have a private room.", callBack: true };
             }
 
-            let channel: VoiceChannel | null = author.voice.channel
+            let channel: VoiceChannel | null = author.voice.channel;
 
             if (channel === null || channel.id !== result.ChannelID) {
                 channel = await client.channels.fetch(result.ChannelID) as VoiceChannel;
@@ -58,6 +58,6 @@ module.exports = {
     },
 };
 
-export function callback(msg: Message) {
+export function callback(msg: Message): void {
     console.log(msg.content);
 }

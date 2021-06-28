@@ -8,13 +8,13 @@ export const name = "message";
 
 export default function message(client: Client) {
 
-    return async (msg: Message) => {
+    return async (msg: Message): Promise<void> => {
         try {
             // Check if valid channel.
             if (msg.guild === null && msg.channel === null) { return; }
 
             // Check if user is not a bot.
-            if (msg.author.bot) { return; };
+            if (msg.author.bot) { return; }
 
             // Check if bot is called with prefix or tag.
             if (!msg.content.startsWith(options.prefix, 0) &&
@@ -22,28 +22,30 @@ export default function message(client: Client) {
                 !msg.content.startsWith(`<@&${client.user?.id}>`) &&
                 msg.channel.type !== "dm") { return; }
 
-            let user = msg.member == undefined ? msg.author : msg.member as GuildMember;
+            const user = msg.member == undefined ? msg.author : msg.member as GuildMember;
 
             // Return if cal.
             if (msg.author.id === "367750323860799508") return;
 
-            let message = msg.content;
+            let content = msg.content;
             // Check which way the bot got called.
-            if (message.startsWith(options.prefix)) {
+            if (content.startsWith(options.prefix)) {
                 // Cut off the prefix.
-                message = message.slice(options.prefix.length);
-            } else if (message.slice(0, 22) === `<@!${client.user?.id}>` || message.slice(0, 22) === `<@&${client.user?.id}>`) {
+                content = content.slice(options.prefix.length);
+            } else if (content.slice(0, 22) === `<@!${client.user?.id}>` || content.slice(0, 22) === `<@&${client.user?.id}>`) {
                 // Cut off the ping.
-                message = message.slice(22);
+                content = content.slice(22);
             }
             // Trim string.
-            message = message.trim()
+            content = content.trim();
             // Check if there is a command.
-            if (message.length === 0) { return; }
+            if (content.length === 0) { return; }
             // Split message into arguments.
-            let args: string[] = message.trim().split(/ +/) || [];
+            const args: string[] = content.trim().split(/ +/) || [];
             // Get command name.
-            const commandName = args.shift()!.toLowerCase()
+            const commandName = args.shift()?.toLowerCase();
+
+            if (!commandName) return;
 
             // Loop through arguments and pick out the mentions
             for (let i = 0; i < args.length; i++) {
@@ -56,7 +58,7 @@ export default function message(client: Client) {
             }
 
             // yeet through command handler.
-            let response = await runCommand(user, commandName, args, client, msg);
+            const response = await runCommand(user, commandName, args, client, msg);
 
             if (response.type === "disabled") {
                 return;

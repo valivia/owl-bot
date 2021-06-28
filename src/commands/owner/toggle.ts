@@ -19,8 +19,8 @@ module.exports = {
             "name": "commandName",
             "description": "command to toggle.",
             "default": false,
-            "required": true
-        }
+            "required": true,
+        },
     ],
 
     throttling: {
@@ -30,19 +30,19 @@ module.exports = {
 
     async execute(_author: GuildMember, { commandName }: { commandName: string }, client: Client): Promise<Iresponse> {
         if (commandName === undefined) return defaultErr;
-        let conn = client.conn;
+        const conn = client.conn;
         try {
-            let command = getCommand(client, commandName);
+            const command = getCommand(client, commandName);
 
-            if (command === undefined) return { type: "text", content: "This command doesnt exist." }
+            if (command === undefined) return { type: "text", content: "This command doesnt exist." };
 
             await conn.commands.update({ data: { Disabled: (command.disabled ? false : true) }, where: { Name: commandName } });
 
-            command.disabled = !command.disabled
+            command.disabled = !command.disabled;
 
             client.commands.set(command.name, command);
 
-            return { type: "text", content: `command has been ${command.disabled ? "disabled" : "enabled"}.` }
+            return { type: "text", content: `command has been ${command.disabled ? "disabled" : "enabled"}.` };
         } catch (e) {
             console.log(e);
             return defaultErr;

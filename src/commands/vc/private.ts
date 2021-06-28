@@ -22,7 +22,7 @@ module.exports = {
             // Make vc private/open
             const result = await conn.voiceChannels.updateMany({
                 where: { AND: [{ GuildID: author.guild.id }, { UserID: author.id }] },
-                data: { Open: false }
+                data: { Open: false },
             }).catch(() => {
                 return false;
             });

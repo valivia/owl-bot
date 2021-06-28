@@ -21,7 +21,7 @@ module.exports = {
 
 
     async execute(author: GuildMember, _: undefined, client: Client) {
-        let conn = client.conn;
+        const conn = client.conn;
         try {
             // Check if in vc.
             if (author.voice.channel == null) {
@@ -29,13 +29,13 @@ module.exports = {
             }
 
             // Query db for user's active vcs.
-            let channel = await conn.voiceChannels.findFirst({
+            const channel = await conn.voiceChannels.findFirst({
                 where: {
                     OR: [
                         { UserID: author.id, GuildID: author.guild.id },
-                        { UserID: null, GuildID: author.guild.id }
-                    ]
-                }
+                        { UserID: null, GuildID: author.guild.id },
+                    ],
+                },
             });
 
             if (!channel) {
@@ -46,20 +46,20 @@ module.exports = {
                 // Move user into vc.
                 author.voice.setChannel(channel.ChannelID);
                 // Send message.
-                return { type: "content", content: "moved back into your vc" }
+                return { type: "content", content: "moved back into your vc" };
             }
 
             await conn.voiceChannels.update({
                 where: {
-                    ChannelID: channel.ChannelID
+                    ChannelID: channel.ChannelID,
                 },
                 data: {
                     UserID: author.id,
                     VCMembers: {
                         create: {
-                            UserID: author.id
-                        }
-                    }
+                            UserID: author.id,
+                        },
+                    },
                 },
 
             });
@@ -77,7 +77,7 @@ module.exports = {
                 .setTimestamp();
 
             // Send message.
-            return { type: "embed", content: embed }
+            return { type: "embed", content: embed };
         } catch (e) {
             console.log(e);
             return defaultErr;

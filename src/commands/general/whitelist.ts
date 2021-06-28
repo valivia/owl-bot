@@ -2,7 +2,7 @@ import { Client, GuildMember } from "discord.js";
 import { Rcon } from "rcon-client";
 import { argType, Iresponse } from "../../interfaces";
 import { accountExists, defaultErr } from "../../middleware/modules";
-import settings from "../../../settings.json"
+import settings from "../../../settings.json";
 import logHandler from "../../middleware/logHandler";
 import { Logs_Event } from "@prisma/client";
 
@@ -23,14 +23,14 @@ module.exports = {
             "name": "username",
             "description": "which mc name to add",
             "default": false,
-            "required": true
+            "required": true,
         },
         {
             "type": argType.user,
             "name": "member",
             "description": "which user to whitelist",
             "default": false,
-            "required": false
+            "required": false,
         },
 
     ],
@@ -44,14 +44,14 @@ module.exports = {
         try {
             username = username.substr(0, 64);
             console.log(member.id);
-            const userID = member.id !== undefined ? member.id : author.id
+            const userID = member.id !== undefined ? member.id : author.id;
             // Check if right server.
             if (author.guild.id !== "823993381591711786") return { type: "disabled", content: "Not allowed in this guild." };
 
             // Check if sub.
             if (!author.roles.cache.has("841690912748208158") && author.id !== settings.Options.owner) {
                 return { type: "text", content: "You have to be a sub to use this command." };
-            };
+            }
 
             // Check if account exists.
             const id = await accountExists(username);
@@ -63,8 +63,8 @@ module.exports = {
             const query = await conn.whitelist.findFirst({
                 where: {
                     OR: [
-                        { UserID: userID, },
-                        { UUID: id as string }
+                        { UserID: userID },
+                        { UUID: id as string },
                     ],
                 },
             });

@@ -1,8 +1,8 @@
 import disc from "./src/discordBot";
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from "@prisma/client";
 
 
-const db = new PrismaClient()
+const db = new PrismaClient();
 
 async function main() {
     disc(db);
@@ -10,8 +10,8 @@ async function main() {
 
 main()
     .catch(e => {
-        throw e
+        throw e;
     })
     .finally(async () => {
-        await db.$disconnect()
-    })
+        await db.$disconnect();
+    });

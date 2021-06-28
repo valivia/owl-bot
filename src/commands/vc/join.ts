@@ -1,4 +1,4 @@
-import { Client, GuildMember, Message, VoiceChannel } from "discord.js";
+import { Client, GuildMember } from "discord.js";
 import { argType, Iresponse } from "../../interfaces";
 import { defaultErr } from "../../middleware/modules";
 module.exports = {
@@ -18,8 +18,8 @@ module.exports = {
             "name": "user",
             "description": "Which user to join",
             "default": false,
-            "required": true
-        }
+            "required": true,
+        },
     ],
 
     throttling: {
@@ -27,29 +27,29 @@ module.exports = {
         usages: 3,
     },
 
-    async execute(author: GuildMember, { user }: { user: GuildMember }, client: Client, msg: Message): Promise<Iresponse> {
-        let conn = client.conn;
+    async execute(author: GuildMember, { user }: { user: GuildMember }, client: Client): Promise<Iresponse> {
+        const conn = client.conn;
         try {
 
-            /*if (author.id === user.id) {
+            /* if (author.id === user.id) {
                 return { type: "disabled", content: "You cant join yourself." }
             }*/
 
             const result = await conn.vCMembers.findFirst({
                 where: {
                     UserID: user.id,
-                    VoiceChannels: { GuildID: author.guild.id }
+                    VoiceChannels: { GuildID: author.guild.id },
                 },
-                include: { VoiceChannels: true }
+                include: { VoiceChannels: true },
             });
 
             console.log(result);
 
             if (result === null) {
-                return { type: "text", content: "This user isnt in a voice channel." }
+                return { type: "text", content: "This user isnt in a voice channel." };
             }
 
-            const channel = await client.channels.fetch(result.ChannelID) as VoiceChannel;
+            // const channel = await client.channels.fetch(result.ChannelID) as VoiceChannel;
 
             return { type: "disabled", content: "Wait for user to respond." };
         } catch (e) {

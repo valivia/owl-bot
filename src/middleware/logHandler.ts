@@ -1,14 +1,11 @@
 import { Logs_Event } from "@prisma/client";
 import colors from "colors";
-import { Client, Guild, GuildChannel, MessageEmbed, User } from "discord.js";
-import { Options } from "../../settings.json"
+import { Client, MessageEmbed, User } from "discord.js";
 colors.enable();
-
-let channel: GuildChannel;
 
 export let client: Client;
 
-export default async function logHandler(type: Logs_Event, guild: string, user?: User, content?: string, mod?: User | undefined) {
+export default async function logHandler(type: Logs_Event, guild: string, user?: User, content?: string, mod?: User | undefined): Promise<void> {
 
     if (user === undefined) { user = client.user as User; }
 
@@ -30,16 +27,6 @@ export default async function logHandler(type: Logs_Event, guild: string, user?:
     // channel.send(embed)
     return;
 }
-export function initLog(Client: Client) {
-    client = Client;
-}
-
-export async function fetchChannel(client: Client): Promise<void> {
-    // fetch guild.
-    const guild: Guild = client.guilds.cache.get(Options.guild);
-    channel = guild.channels.cache.get(Options.channel);
-    if (channel === undefined) {
-        console.log("Could not fetch log channel.".bgRed);
-        process.exit(1);
-    }
+export function initLog(clientVar: Client): void {
+    client = clientVar;
 }

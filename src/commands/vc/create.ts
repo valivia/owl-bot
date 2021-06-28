@@ -19,8 +19,8 @@ module.exports = {
             "name": "channelName",
             "description": "Name of the channel",
             "default": false,
-            "required": true
-        }
+            "required": true,
+        },
     ],
 
     throttling: {
@@ -29,22 +29,22 @@ module.exports = {
     },
 
     async execute(author: GuildMember, { channelName }: { channelName: string }, client: Client): Promise<Iresponse> {
-        let conn = client.conn;
+        const conn = client.conn;
         try {
-            let options: GuildCreateChannelOptions = {
-                type: 'voice',
+            const options: GuildCreateChannelOptions = {
+                type: "voice",
                 permissionOverwrites: [{
                     id: author.guild.id,
-                    allow: ['VIEW_CHANNEL'],
-                    deny: ['CONNECT']
-                }]
-            }
+                    allow: ["VIEW_CHANNEL"],
+                    deny: ["CONNECT"],
+                }],
+            };
 
             // Make channel.
-            let channel = await author.guild.channels.create(channelName, options) as VoiceChannel;
+            const channel = await author.guild.channels.create(channelName, options) as VoiceChannel;
 
             if (channel === undefined) {
-                return defaultErr
+                return defaultErr;
             }
 
             // Add to db.
@@ -54,7 +54,7 @@ module.exports = {
             return { type: "text", content: "Channel added to db" };
         } catch (e) {
             console.log(e);
-            return defaultErr
+            return defaultErr;
         }
     },
 };
