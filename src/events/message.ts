@@ -9,6 +9,7 @@ export default function message(client: OwlClient) {
 
     return async (msg: Message): Promise<void> => {
         try {
+            const ping = Date.now();
             // Check if valid channel.
             if (msg.guild === null && msg.channel === null) { return; }
 
@@ -63,7 +64,9 @@ export default function message(client: OwlClient) {
                 return;
             }
 
-            msg.lineReplyNoMention(response.content);
+            console.log(`pre send ping: ${Date.now() - ping}`);
+            await msg.lineReplyNoMention(response.content);
+            console.log(`post send ping: ${Date.now() - ping}`);
 
         } catch (error) {
             console.error(error);

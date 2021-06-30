@@ -1,7 +1,8 @@
 import { GuildMember, User, MessageEmbed } from "discord.js";
 import { Options } from "../../../settings.json";
+import { getCommand } from "../../middleware/modules";
 import { Command, OwlClient } from "../../types/classes";
-import { argType, MsgResponse, CommandInfo } from "../../types/types";
+import { argType, MsgResponse } from "../../types/types";
 
 module.exports = class extends Command {
     constructor(client: OwlClient) {
@@ -67,17 +68,22 @@ module.exports = class extends Command {
         }
 
         const cmdName = commandName?.toLowerCase();
-        const command = commands.get(cmdName) as CommandInfo || commands.find((c: { aliases: string | string[]; }) => c.aliases && c.aliases.includes(cmdName));
+        const command = getCommand(client, cmdName);
 
-        if (command === undefined) {
+        if (!command) {
             return { type: "text", content: "invalid command.." };
+        }
+
+        let alias;
+        if (command.aliases) {
+            alias = command.aliases.length < 1 ? command.aliases.join(", ") : "No Aliases available for this command.";
         }
 
         const embed = new MessageEmbed()
             .setAuthor(author.username, `${author.avatarURL()}`)
             .setTitle(command.name)
             .addField("Description", command.description !== undefined ? command.description : "-")
-            .addField("Aliases", command.aliases.length < 1 ? command.aliases.join(", ") : "No Aliases available for this command.", true)
+            .addField("Aliases", alias, true)
             .addField("Example", command.example !== undefined ? `\`\`${Options.prefix}${command.name} ${command.example}\`\`` : "No example provided.", true)
             .addField("cooldown", command.throttling !== undefined ? command.throttling.duration : "none")
             .setColor("#FF0000")

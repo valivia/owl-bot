@@ -1,7 +1,7 @@
 import { GuildMember, ImageURLOptions, MessageEmbed } from "discord.js";
-import { defaultErr } from "../../middleware/modules";
 import { Command, OwlClient } from "../../types/classes";
 import { argType, MsgResponse } from "../../types/types";
+import { defaultErr } from "../../middleware/modules";
 
 module.exports = class extends Command {
     constructor(client: OwlClient) {

@@ -1,6 +1,4 @@
-import { Rcon } from "rcon-client";
-import { accountExists, defaultErr } from "../../middleware/modules";
-import settings from "../../../settings.json";
+import { getMcUUID, defaultErr, RCONHandler } from "../../middleware/modules";
 import logHandler from "../../middleware/logHandler";
 import { Logs_Event } from "@prisma/client";
 import { GuildMember } from "discord.js";
@@ -28,82 +26,63 @@ module.exports = class extends Command {
                     "default": false,
                     "required": true,
                 },
-                {
-                    "type": argType.user,
-                    "name": "member",
-                    "description": "which user to whitelist",
-                    "default": false,
-                    "required": false,
-                },
-
             ],
 
             throttling: {
                 duration: 60,
                 usages: 2,
             },
+
+            permissions: {
+                self: ["MANAGE_ROLES"],
+                user: null,
+            },
         });
     }
 
-    async run(author: GuildMember, { username, member }: { username: string, member: GuildMember }, { db }: OwlClient): Promise<MsgResponse> {
+    async run(author: GuildMember, { username }: { username: string }, { db }: OwlClient): Promise<MsgResponse> {
         try {
-            username = username.substr(0, 64);
-            console.log(member.id);
-            const userID = member.id !== undefined ? member.id : author.id;
-            // Check if right server.
-            if (author.guild.id !== "823993381591711786") return { type: "disabled", content: "Not allowed in this guild." };
+            username = username.trim().substr(0, 64);
+            const userID = author.id;
 
-            // Check if sub.
-            if (!author.roles.cache.has("841690912748208158") && author.id !== settings.Options.owner) {
-                return { type: "text", content: "You have to be a sub to use this command." };
-            }
+            // Get guild.
+            const rconGuild = await db.rCON.findFirst({ where: { GuildID: author.guild.id } });
 
-            // Check if account exists.
-            const id = await accountExists(username);
+            // Check if connected server.
+            if (rconGuild === null) return { type: "text", content: "No minecraft server connected to this guild." };
 
-            // Check if should continue.
-            if (!id) return { type: "text", content: "mc account doesn't exist" };
+            // Get UUID
+            let uuid = await getMcUUID(username);
+
+            // Check if exists.
+            if (!uuid) return { type: "text", content: "mc account doesn't exist" };
+            uuid = uuid as string;
 
             // Check if already registered.
-            const query = await db.whitelist.findFirst({
-                where: {
-                    OR: [
-                        { UserID: userID },
-                        { UUID: id as string },
-                    ],
-                },
-            });
+            const userExists = await db.whitelist.findFirst({ where: { OR: [{ UserID: userID }, { UUID: uuid as string }] } });
 
-            if (query !== null) return { type: "text", content: "You already have an account linked." };
-            // rcon connect.
-            const rcon = await Rcon.connect({ host: settings.rcon.host, port: settings.rcon.port, password: settings.rcon.pass });
+            // Check if already in db.
+            if (userExists !== null) return { type: "text", content: "You already have an account linked." };
 
-            // Try to whitelist.
-            const response = await rcon.send(`whitelist add ${username}`);
-            rcon.end();
+            // Execute command.
+            const response = await RCONHandler(`whitelist add ${username}`, { host: rconGuild.Host, port: rconGuild.Port, password: rconGuild.Password });
 
             // If already whitelisted.
-            if (response === "Player is already whitelisted") return { type: "text", content: "That name is already whitelisted" };
+            if (response.code !== "SUCCESS") return { type: "text", content: response.message };
 
             // Add to db.
-            await db.whitelist.create({ data: { UserID: userID, UUID: id as string, GuildID: author.guild.id, Permanent: member.id !== undefined ? true : false } });
+            await db.whitelist.create({ data: { UserID: userID, UUID: uuid, GuildID: author.guild.id } });
 
             // Give role.
-            if (member.id !== undefined) {
-                member.roles.add("840565782361407553");
-            } else {
-                author.roles.add("840565782361407553");
-            }
+            if (rconGuild.RoleID) author.roles.add(rconGuild.RoleID);
 
             // Log it.
-            logHandler(Logs_Event.Whitelist_Add, author.guild.id, author.user, id as string);
+            logHandler(Logs_Event.Whitelist_Add, author.guild.id, author.user, uuid);
 
             // Respond.
             return { type: "text", content: "You've been whitelisted!" };
         } catch (e) {
             console.log(e);
-            // If cant connect to mc server.
-            if (e.errno === "ECONNREFUSED") return { type: "text", content: "Couldn't connect to the mc server please contact the bot owner." };
             return defaultErr;
         }
     }

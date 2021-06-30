@@ -48,14 +48,15 @@ model Warnings {
 }
 
 model Whitelist {
-  UserID    String   @unique @db.VarChar(18)
-  UUID      String   @unique @db.VarChar(32)
-  Created   DateTime @default(now()) @db.Timestamp(0)
-  Permanent Boolean  @default(false)
-  Expired   Boolean  @default(false)
-  GuildID   String   @db.VarChar(18)
-  Settings  Settings @relation(fields: [GuildID], references: [GuildID])
+  UserID   String   @db.VarChar(18)
+  UUID     String   @db.VarChar(32)
+  Created  DateTime @default(now()) @db.Timestamp(0)
+  Expired  Boolean  @default(false)
+  GuildID  String   @db.VarChar(18)
+  Settings Settings @relation(fields: [GuildID], references: [GuildID])
 
+  @@unique([UUID, GuildID], name: "Whitelist_UN")
+  @@unique([UserID, GuildID], name: "Whitelist_UN2")
   @@index([GuildID], name: "Whitelist_FK")
 }
 
@@ -64,6 +65,7 @@ model Settings {
   Created       DateTime        @default(now()) @db.Timestamp(0)
   LogChannel    String?         @db.VarChar(18)
   Logs          Logs[]
+  RCON          RCON?
   VoiceChannels VoiceChannels[]
   Warnings      Warnings[]
   Whitelist     Whitelist[]
@@ -80,6 +82,16 @@ model Logs {
   Settings Settings   @relation(fields: [GuildID], references: [GuildID])
 
   @@index([GuildID], name: "Logs_FK")
+}
+
+model RCON {
+  ID       Int      @id @default(autoincrement())
+  GuildID  String   @unique @db.VarChar(18)
+  Host     String   @db.VarChar(32)
+  Port     Int
+  Password String   @db.VarChar(100)
+  RoleID   String?  @db.VarChar(18)
+  Settings Settings @relation(fields: [GuildID], references: [GuildID])
 }
 
 enum Logs_Event {
