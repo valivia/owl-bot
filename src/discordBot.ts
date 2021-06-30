@@ -1,11 +1,12 @@
 import colors from "colors";
+import dotenv from "dotenv";
 colors.enable();
+dotenv.config();
 
 import fs from "fs";
 import discord, { Client } from "discord.js";
 import "discord-reply";
 
-import settings from "../settings.json";
 import { getCommands, runCommand } from "./middleware/commandhandler";
 import { getMember } from "./middleware/modules";
 import { PrismaClient } from ".prisma/client";
@@ -72,17 +73,9 @@ export default function discordBot(db: PrismaClient): Client {
             let user;
             const userID = interaction.member !== undefined ? interaction.member.user.id : interaction.user.id;
 
-            // Return if cal.
-            if (userID === "367750323860799508") return;
-
             // Check if executed from guild.
-            if (interaction.guild_id !== undefined) {
-                // get member.
-                user = await getMember(client, interaction.guild_id, userID);
-            } else {
-                // Get user.
-                user = await client.users.fetch(userID);
-            }
+            if (interaction.guild_id !== undefined) user = await getMember(client, interaction.guild_id, userID);
+            else user = await client.users.fetch(userID);
 
             // Execute command.
             const response = user !== undefined ? await runCommand(user, interaction.data.name, args, client) : { type: "content", content: "an error occured" };
@@ -105,7 +98,7 @@ export default function discordBot(db: PrismaClient): Client {
             });
         });
 
-    client.login(settings.Bot.Token);
+    client.login(process.env.BOT_TOKEN);
 
     return client;
 }
@@ -114,6 +107,6 @@ export default function discordBot(db: PrismaClient): Client {
 /*
             client.guilds.cache.each(async (a: Guild) => {
                 console.log(a.name);
-                await client.conn.settings.create({ data: { GuildID: a.id } })
-            })
+                await client.conn.settings.create({ data: { GuildID: a.id } });
+            });
             */
