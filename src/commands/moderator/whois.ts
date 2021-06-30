@@ -44,7 +44,7 @@ module.exports = class extends Command {
             if (!id) return { type: "text", content: "mc account doesn't exist" };
 
             // get username
-            const query = await client.conn.whitelist.findFirst({ where: { UUID: id as string } });
+            const query = await client.db.whitelist.findFirst({ where: { UUID: id as string } });
 
             if (query === null) return { type: "text", content: "No account linked.." };
 

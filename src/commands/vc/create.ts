@@ -34,7 +34,7 @@ module.exports = class extends Command {
     }
 
     async run(author: GuildMember, { channelName }: { channelName: string }, client: OwlClient): Promise<MsgResponse> {
-        const conn = client.conn;
+        const db = client.db;
         try {
             const options: GuildCreateChannelOptions = {
                 type: "voice",
@@ -53,7 +53,7 @@ module.exports = class extends Command {
             }
 
             // Add to db.
-            await conn.voiceChannels.create({ data: { ChannelID: channel.id, GuildID: author.guild.id } });
+            await db.voiceChannels.create({ data: { ChannelID: channel.id, GuildID: author.guild.id } });
 
             // Send message
             return { type: "text", content: "Channel added to db" };

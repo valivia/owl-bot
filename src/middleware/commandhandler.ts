@@ -5,13 +5,13 @@ import { Collection, Guild, GuildMember, Message, PermissionResolvable, User } f
 import fs from "fs";
 import settings from "../../settings.json";
 import { Command, OwlClient } from "../types/classes";
-import { MsgResponse, CommandInfo } from "../types/types";
+import { MsgResponse } from "../types/types";
 import { defaultErr, getChannel, getCommand, getMember, getRole } from "./modules";
 const options = settings.Options;
 
 export async function getCommands(client: OwlClient): Promise<void> {
     client.commands = new Collection();
-    const conn = client.conn;
+    const db = client.db;
     const folders = fs.readdirSync("./src/commands/");
     for (const folder of folders) {
         const commandFiles = fs.readdirSync(`./src/commands/${folder}`).filter(file => file.endsWith(".js"));
@@ -39,7 +39,7 @@ export async function getCommands(client: OwlClient): Promise<void> {
             }
 
             // Get command from db.
-            const query = await conn.commands.findUnique({
+            const query = await db.commands.findUnique({
                 where: {
                     Name: command.name,
                 },
@@ -59,7 +59,7 @@ export async function getCommands(client: OwlClient): Promise<void> {
 
             // Insert command into db if not there yet.
             if (query === null) {
-                await conn.commands.create({
+                await db.commands.create({
                     data: {
                         Name: command.name,
                         Disabled: false,
@@ -113,7 +113,7 @@ function hasPerms(required: PermissionResolvable[], member: GuildMember): boolea
     return true;
 }
 
-async function argumenthanlder(command: CommandInfo, args: string[], client: OwlClient, guild: Guild | undefined): Promise<any> {
+async function argumenthanlder(command: Command, args: string[], client: OwlClient, guild: Guild | undefined): Promise<any> {
     const commandArgs = {};
     for (const index in command.args) {
         let value;

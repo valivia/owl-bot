@@ -42,17 +42,17 @@ module.exports = class extends Command {
         });
     }
 
-    async run(author: GuildMember, { member, reason }: { member: GuildMember, reason: string }, { conn }: OwlClient): Promise<MsgResponse> {
+    async run(author: GuildMember, { member, reason }: { member: GuildMember, reason: string }, { db }: OwlClient): Promise<MsgResponse> {
         if (reason === undefined) { reason = "No reason provided"; }
         try {
             // insert into db.
-            await conn.warnings.create({ data: { UserID: member.id, Reason: reason.substr(0, 256), GuildID: member.guild?.id, ModID: author.id } })
+            await db.warnings.create({ data: { UserID: member.id, Reason: reason.substr(0, 256), GuildID: member.guild?.id, ModID: author.id } })
                 .catch(e => {
                     console.log(e);
                     return { type: "text", content: "an error occured" };
                 });
 
-            const warnCount = await conn.warnings.count({ where: { UserID: member.id, GuildID: member.guild.id } });
+            const warnCount = await db.warnings.count({ where: { UserID: member.id, GuildID: member.guild.id } });
 
             let colour: string;
 

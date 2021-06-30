@@ -23,10 +23,10 @@ module.exports = class extends Command {
         });
     }
 
-    async run(author: GuildMember, _: undefined, { conn }: OwlClient): Promise<MsgResponse> {
+    async run(author: GuildMember, _: undefined, { db }: OwlClient): Promise<MsgResponse> {
         try {
             // Make vc private/open
-            const result = await conn.voiceChannels.updateMany({
+            const result = await db.voiceChannels.updateMany({
                 where: { AND: [{ GuildID: author.guild.id }, { UserID: author.id }] },
                 data: { Open: false },
             }).catch(() => {

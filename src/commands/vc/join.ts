@@ -34,14 +34,14 @@ module.exports = class extends Command {
     }
 
     async run(author: GuildMember, { user }: { user: GuildMember }, client: OwlClient): Promise<MsgResponse> {
-        const conn = client.conn;
+        const db = client.db;
         try {
 
             /* if (author.id === user.id) {
                 return { type: "disabled", content: "You cant join yourself." }
             }*/
 
-            const result = await conn.vCMembers.findFirst({
+            const result = await db.vCMembers.findFirst({
                 where: {
                     UserID: user.id,
                     VoiceChannels: { GuildID: author.guild.id },

@@ -1,6 +1,7 @@
 import { Logs_Event } from "@prisma/client";
 import colors from "colors";
-import { OwlClient, MessageEmbed, User } from "discord.js";
+import { MessageEmbed, User } from "discord.js";
+import { OwlClient } from "../types/classes";
 colors.enable();
 
 export let client: OwlClient;
@@ -20,7 +21,7 @@ export default async function logHandler(type: Logs_Event, guild: string, user?:
         embed.setAuthor(mod.username, mod.displayAvatarURL());
     }
 
-    await client.conn.logs.create({ data: { GuildID: guild, UserID: user.id, Event: type, Content: content } });
+    await client.db.logs.create({ data: { GuildID: guild, UserID: user.id, Event: type, Content: content } });
 
 
     // send.

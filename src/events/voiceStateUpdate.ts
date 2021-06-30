@@ -1,4 +1,5 @@
-import { OwlClient, VoiceState } from "discord.js";
+import { VoiceState } from "discord.js";
+import { OwlClient } from "../types/classes";
 
 export default function voiceUpdate(_client: OwlClient) {
 

@@ -1,4 +1,4 @@
-import { PermissionResolvable, MessageEmbed } from "discord.js"
+import { PermissionResolvable, MessageEmbed } from "discord.js";
 
 export type CommandInfo = {
     name: string;
@@ -28,8 +28,8 @@ export type Argument = {
 }
 
 export type Permissions = {
-    self?: PermissionResolvable[]
-    user?: PermissionResolvable[]
+    self: PermissionResolvable[]
+    user: PermissionResolvable[]
 }
 
 export type Throttling = {

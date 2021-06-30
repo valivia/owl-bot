@@ -23,7 +23,7 @@ export default function discordBot(db: PrismaClient): OwlClient {
         .on("ready", async () => {
             if (client.user === null) { return; }
             // setTimeout(loop, 1000);
-            client.conn = db;
+            client.db = db;
 
             await client.user.setActivity(`for ${client.guilds.cache.size} servers`, {
                 type: "STREAMING",
@@ -108,6 +108,6 @@ export default function discordBot(db: PrismaClient): OwlClient {
 /*
             client.guilds.cache.each(async (a: Guild) => {
                 console.log(a.name);
-                await client.conn.settings.create({ data: { GuildID: a.id } });
+                await client.db.settings.create({ data: { GuildID: a.id } });
             });
             */

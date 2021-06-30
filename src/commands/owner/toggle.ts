@@ -35,18 +35,19 @@ module.exports = class extends Command {
 
     async run(_author: GuildMember, { commandName }: { commandName: string }, client: OwlClient): Promise<MsgResponse> {
         if (commandName === undefined) return defaultErr;
-        const conn = client.conn;
+        const db = client.db;
         try {
             const command = getCommand(client, commandName);
 
             if (command === undefined) return { type: "text", content: "This command doesnt exist." };
 
-            await conn.commands.update({ data: { Disabled: (command.disabled ? false : true) }, where: { Name: commandName } });
+            await db.commands.update({ data: { Disabled: (command.disabled ? false : true) }, where: { Name: commandName } });
 
             command.disabled = !command.disabled;
 
             client.commands.set(command.name, command);
 
+            console.log(` > ${command.disabled ? "disabled" : "enabled"}: `.magenta + command.name.green);
             return { type: "text", content: `command has been ${command.disabled ? "disabled" : "enabled"}.` };
         } catch (e) {
             console.log(e);

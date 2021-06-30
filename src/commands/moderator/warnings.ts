@@ -33,10 +33,10 @@ module.exports = class extends Command {
         });
     }
 
-    async run(author: GuildMember, { member }: { member: GuildMember }, { conn }: OwlClient): Promise<MsgResponse> {
+    async run(author: GuildMember, { member }: { member: GuildMember }, { db }: OwlClient): Promise<MsgResponse> {
         try {
             // Get from DB.
-            const warnings = await conn.warnings.findMany({ where: { UserID: member.id, GuildID: member.guild.id }, orderBy: { Created: "asc" } });
+            const warnings = await db.warnings.findMany({ where: { UserID: member.id, GuildID: member.guild.id }, orderBy: { Created: "asc" } });
 
             // Vars.
             let x = 0;

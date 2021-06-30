@@ -1,6 +1,7 @@
-import { OwlClient, GuildMember, Message } from "discord.js";
+import { GuildMember, Message } from "discord.js";
 import settings from "../../settings.json";
 import { runCommand } from "../middleware/commandhandler";
+import { OwlClient } from "../types/classes";
 
 const options = settings.Options;
 

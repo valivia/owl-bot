@@ -25,7 +25,7 @@ module.exports = class extends Command {
     }
 
     async run(author: GuildMember, _: undefined, client: OwlClient) {
-        const db = client.conn;
+        const db = client.db;
         try {
             const result = await db.voiceChannels.update({
                 where: {

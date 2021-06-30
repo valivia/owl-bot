@@ -1,26 +1,22 @@
 import colors from "colors";
 colors.enable();
 
-import { OwlClient, Guild, User } from "discord.js";
-import { Rcon } from "rcon-client";
-import settings from "../../settings.json";
+import { Guild, User } from "discord.js";
 import logHandler from "../middleware/logHandler";
-import { getName } from "../middleware/modules";
 import { Logs_Event } from "@prisma/client";
+import { OwlClient } from "../types/classes";
 
-export default function guildBanAdd(client: OwlClient) {
-    const conn = client.conn;
+export default function guildBanAdd(_client: OwlClient) {
     return async (guild: Guild, user: User) => {
         try {
             // Log.
             logHandler(Logs_Event.Ban, guild.id, user);
 
-            return;
-            // Check if right server.
+            /* // Check if right server.
             if (guild.id !== "823993381591711786") return;
 
             // Query db.
-            const query = await conn.whitelist.findFirst({ where: { UserID: user.id } });
+            const query = await db.whitelist.findFirst({ where: { UserID: user.id } });
 
             if (query === null) return;
 
@@ -41,8 +37,7 @@ export default function guildBanAdd(client: OwlClient) {
 
             console.log(response);
 
-            await conn.whitelist.delete({ where: { UserID: user.id } });
-
+            await db.whitelist.delete({ where: { UserID: user.id } });*/
             return;
         } catch (error) {
             console.error(error);

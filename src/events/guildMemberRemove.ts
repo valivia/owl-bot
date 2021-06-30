@@ -2,8 +2,9 @@ import { Logs_Event } from "@prisma/client";
 import colors from "colors";
 colors.enable();
 
-import { OwlClient, Guild, User } from "discord.js";
+import { Guild, User } from "discord.js";
 import logHandler from "../middleware/logHandler";
+import { OwlClient } from "../types/classes";
 
 export default function guildMemberRemove(_client: OwlClient) {
     return async (guild: Guild, user: User) => {

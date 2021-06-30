@@ -51,7 +51,7 @@ module.exports = class extends Command {
                 .addField(`**Member Details**`,
                     (member.nickname !== null ? `• **Nickname:** ${member.nickname}` : "• **No nickname**") + `\n• **Roles:** ${member.roles.cache.map(roles => `\`${roles.name}\``).join(", ")}\n• **Joined at:** ${member.joinedAt}`)
                 .addField("**User Details**",
-                    `• **Created at:** ${user.createdAt}` + (user.bot ? "\n• **Is a bot account**" : "") + `\n• **Status:** ${user.presence.status}\n• **Game:** ` + (user.presence.game ? user.presence.game.name : "None"));
+                    `• **Created at:** ${user.createdAt}` + (user.bot ? "\n• **Is a bot account**" : ""));
 
             return { type: "embed", content: embed };
         } catch (e) {

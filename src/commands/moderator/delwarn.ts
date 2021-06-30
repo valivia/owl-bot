@@ -41,11 +41,11 @@ module.exports = class extends Command {
     }
 
     async run(_author: GuildMember, { member, number }: { member: GuildMember, number: number }, client: OwlClient): Promise<MsgResponse> {
-        const conn = client.conn;
+        const db = client.db;
         if (number < 1) { return { type: "content", content: "Invalid index" }; }
 
         try {
-            const query = await conn.warnings.findFirst({
+            const query = await db.warnings.findFirst({
                 where: {
                     UserID: member.id,
                     GuildID: member.guild.id,
@@ -56,7 +56,7 @@ module.exports = class extends Command {
 
             if (query === null) return { type: "content", content: "Out of bounds." };
 
-            await conn.warnings.delete({ where: { ID: query.ID } });
+            await db.warnings.delete({ where: { ID: query.ID } });
 
             const embed = new MessageEmbed()
                 .setAuthor(`${member.user.username}#${member.user.discriminator}'s ${number}${number > 1 ? "nd" : "st"} warning was removed`)

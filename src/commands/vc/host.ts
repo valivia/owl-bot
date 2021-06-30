@@ -26,7 +26,7 @@ module.exports = class extends Command {
 
 
     async run(author: GuildMember, _: undefined, client: OwlClient) {
-        const conn = client.conn;
+        const db = client.db;
         try {
             // Check if in vc.
             if (author.voice.channel == null) {
@@ -34,7 +34,7 @@ module.exports = class extends Command {
             }
 
             // Query db for user's active vcs.
-            const channel = await conn.voiceChannels.findFirst({
+            const channel = await db.voiceChannels.findFirst({
                 where: {
                     OR: [
                         { UserID: author.id, GuildID: author.guild.id },
@@ -54,7 +54,7 @@ module.exports = class extends Command {
                 return { type: "content", content: "moved back into your vc" };
             }
 
-            await conn.voiceChannels.update({
+            await db.voiceChannels.update({
                 where: {
                     ChannelID: channel.ChannelID,
                 },

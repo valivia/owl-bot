@@ -1,6 +1,7 @@
 import { Logs_Event } from "@prisma/client";
-import { OwlClient, Message, PartialMessage, User } from "discord.js";
+import { Message, PartialMessage, User } from "discord.js";
 import logHandler from "../middleware/logHandler";
+import { OwlClient } from "../types/classes";
 
 export default function messageUpdate(_client: OwlClient) {
 

@@ -1,9 +1,8 @@
 {
   "dependencies": {
-    "@discordjs/collection": "^0.1.6",
+    "@discordjs/collection": "latest",
     "@discordjs/opus": "^0.5.3",
     "@prisma/client": "^2.25.0",
-    "@types/node": "^13.11.1",
     "axios": "^0.21.1",
     "colors": "^1.4.0",
     "cron": "^1.8.2",
@@ -20,6 +19,7 @@
     "ytdl-core": "^4.8.3"
   },
   "devDependencies": {
+    "@types/node": "^13.13.52",
     "@typescript-eslint/eslint-plugin": "^4.28.1",
     "@typescript-eslint/parser": "^4.28.1",
     "eslint": "^7.29.0",

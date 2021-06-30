@@ -45,7 +45,7 @@ module.exports = class extends Command {
         });
     }
 
-    async run(author: GuildMember, { username, member }: { username: string, member: GuildMember }, { conn }: OwlClient): Promise<MsgResponse> {
+    async run(author: GuildMember, { username, member }: { username: string, member: GuildMember }, { db }: OwlClient): Promise<MsgResponse> {
         try {
             username = username.substr(0, 64);
             console.log(member.id);
@@ -65,7 +65,7 @@ module.exports = class extends Command {
             if (!id) return { type: "text", content: "mc account doesn't exist" };
 
             // Check if already registered.
-            const query = await conn.whitelist.findFirst({
+            const query = await db.whitelist.findFirst({
                 where: {
                     OR: [
                         { UserID: userID },
@@ -86,7 +86,7 @@ module.exports = class extends Command {
             if (response === "Player is already whitelisted") return { type: "text", content: "That name is already whitelisted" };
 
             // Add to db.
-            await conn.whitelist.create({ data: { UserID: userID, UUID: id as string, GuildID: author.guild.id, Permanent: member.id !== undefined ? true : false } });
+            await db.whitelist.create({ data: { UserID: userID, UUID: id as string, GuildID: author.guild.id, Permanent: member.id !== undefined ? true : false } });
 
             // Give role.
             if (member.id !== undefined) {
