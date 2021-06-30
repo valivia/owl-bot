@@ -1,41 +1,46 @@
-import { Client, GuildMember, MessageEmbed } from "discord.js";
-import { argType, Iresponse } from "../../interfaces";
+import { GuildMember, MessageEmbed } from "discord.js";
 import { defaultErr } from "../../middleware/modules";
+import { Command, OwlClient } from "../../types/classes";
+import { argType, MsgResponse } from "../../types/types";
 
-module.exports = {
-    name: "delwarn",
-    aliases: ["dwarn"],
-    description: "Deletes a specific warn.",
-    example: "@valivia 2",
-    group: "moderator",
+module.exports = class extends Command {
+    constructor(client: OwlClient) {
+        super(client, {
+            name: "delwarn",
+            aliases: ["dwarn"],
+            description: "Deletes a specific warn.",
+            example: "@valivia 2",
+            group: "moderator",
 
-    guildOnly: true,
-    adminOnly: false,
-    slash: true,
+            guildOnly: true,
+            adminOnly: false,
+            slash: true,
 
-    args: [
-        {
-            "type": argType.user,
-            "name": "member",
-            "description": "which user's warning to remove.",
-            "default": false,
-            "required": true,
-        },
-        {
-            "type": argType.integer,
-            "name": "number",
-            "description": "which warning.",
-            "default": false,
-            "required": true,
-        },
-    ],
+            args: [
+                {
+                    "type": argType.user,
+                    "name": "member",
+                    "description": "which user's warning to remove.",
+                    "default": false,
+                    "required": true,
+                },
+                {
+                    "type": argType.integer,
+                    "name": "number",
+                    "description": "which warning.",
+                    "default": false,
+                    "required": true,
+                },
+            ],
 
-    throttling: {
-        duration: 30,
-        usages: 3,
-    },
+            throttling: {
+                duration: 30,
+                usages: 3,
+            },
+        });
+    }
 
-    async execute(_author: GuildMember, { member, number }: { member: GuildMember, number: number }, client: Client): Promise<Iresponse> {
+    async run(_author: GuildMember, { member, number }: { member: GuildMember, number: number }, client: OwlClient): Promise<MsgResponse> {
         const conn = client.conn;
         if (number < 1) { return { type: "content", content: "Invalid index" }; }
 
@@ -63,5 +68,5 @@ module.exports = {
 
             return defaultErr;
         }
-    },
+    }
 };

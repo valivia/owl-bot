@@ -1,46 +1,51 @@
-import { Client, GuildMember } from "discord.js";
 import { Rcon } from "rcon-client";
-import { argType, Iresponse } from "../../interfaces";
 import { accountExists, defaultErr } from "../../middleware/modules";
 import settings from "../../../settings.json";
 import logHandler from "../../middleware/logHandler";
 import { Logs_Event } from "@prisma/client";
+import { GuildMember } from "discord.js";
+import { Command, OwlClient } from "../../types/classes";
+import { argType, MsgResponse } from "../../types/types";
 
-module.exports = {
-    name: "whitelist",
-    aliases: ["mc"],
-    description: "whitelists to server",
-    example: "Notch",
-    group: "general",
+module.exports = class extends Command {
+    constructor(client: OwlClient) {
+        super(client, {
+            name: "whitelist",
+            aliases: ["mc"],
+            description: "whitelists to server",
+            example: "Notch",
+            group: "general",
 
-    guildOnly: true,
-    adminOnly: false,
-    slash: false,
+            guildOnly: true,
+            adminOnly: false,
+            slash: false,
 
-    args: [
-        {
-            "type": argType.string,
-            "name": "username",
-            "description": "which mc name to add",
-            "default": false,
-            "required": true,
-        },
-        {
-            "type": argType.user,
-            "name": "member",
-            "description": "which user to whitelist",
-            "default": false,
-            "required": false,
-        },
+            args: [
+                {
+                    "type": argType.string,
+                    "name": "username",
+                    "description": "which mc name to add",
+                    "default": false,
+                    "required": true,
+                },
+                {
+                    "type": argType.user,
+                    "name": "member",
+                    "description": "which user to whitelist",
+                    "default": false,
+                    "required": false,
+                },
 
-    ],
+            ],
 
-    throttling: {
-        duration: 60,
-        usages: 2,
-    },
+            throttling: {
+                duration: 60,
+                usages: 2,
+            },
+        });
+    }
 
-    async execute(author: GuildMember, { username, member }: { username: string, member: GuildMember }, { conn }: Client): Promise<Iresponse> {
+    async run(author: GuildMember, { username, member }: { username: string, member: GuildMember }, { conn }: OwlClient): Promise<MsgResponse> {
         try {
             username = username.substr(0, 64);
             console.log(member.id);
@@ -101,5 +106,5 @@ module.exports = {
             if (e.errno === "ECONNREFUSED") return { type: "text", content: "Couldn't connect to the mc server please contact the bot owner." };
             return defaultErr;
         }
-    },
+    }
 };

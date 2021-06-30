@@ -1,9 +1,10 @@
-import { Client, GuildMember, MessageEmbed, Util, VoiceConnection } from "discord.js";
 import search, { YouTubeSearchOptions, YouTubeSearchResults } from "youtube-search";
-import { argType, Iresponse } from "../../interfaces";
 import { defaultErr } from "../../middleware/modules";
 import ytdl from "ytdl-core";
 import dotenv from "dotenv";
+import { GuildMember, VoiceConnection, MessageEmbed, Util } from "discord.js";
+import { Command, OwlClient } from "../../types/classes";
+import { argType, MsgResponse } from "../../types/types";
 dotenv.config();
 
 const options: YouTubeSearchOptions = {
@@ -11,33 +12,37 @@ const options: YouTubeSearchOptions = {
     key: process.env.API_KEY,
 };
 
-module.exports = {
-    name: "play",
-    aliases: ["p"],
-    description: "Plays or queues a song",
-    example: "one point perspective",
-    group: "music",
+module.exports = class extends Command {
+    constructor(client: OwlClient) {
+        super(client, {
+            name: "play",
+            aliases: ["p"],
+            description: "Plays or queues a song",
+            example: "one point perspective",
+            group: "music",
 
-    guildOnly: true,
-    adminOnly: false,
-    slash: false,
+            guildOnly: true,
+            adminOnly: false,
+            slash: false,
 
-    args: [
-        {
-            "type": argType.string,
-            "name": "song",
-            "description": "song to play",
-            "default": false,
-            "required": true,
-        },
-    ],
+            args: [
+                {
+                    "type": argType.string,
+                    "name": "song",
+                    "description": "song to play",
+                    "default": false,
+                    "required": true,
+                },
+            ],
 
-    throttling: {
-        duration: 60,
-        usages: 3,
-    },
+            throttling: {
+                duration: 60,
+                usages: 3,
+            },
+        });
+    }
 
-    async execute(author: GuildMember, { song }: { song: string }, _client: Client): Promise<Iresponse> {
+    async run(author: GuildMember, { song }: { song: string }, _client: OwlClient): Promise<MsgResponse> {
         try {
             const vc = author.voice.channel;
             if (song === undefined) { return { type: "content", content: "What song do you want to hear?" }; }
@@ -68,7 +73,7 @@ module.exports = {
             console.log(e);
             return defaultErr;
         }
-    },
+    }
 };
 
 async function songEnd(vc: VoiceConnection): Promise<void> {

@@ -1,26 +1,31 @@
 import { Logs_Event } from "@prisma/client";
-import { Client, GuildMember, MessageEmbed } from "discord.js";
+import { GuildMember, MessageEmbed } from "discord.js";
 import logHandler from "../../middleware/logHandler";
 import { defaultErr } from "../../middleware/modules";
+import { Command, OwlClient } from "../../types/classes";
 
-module.exports = {
-    name: "host",
-    aliases: [""],
-    description: "Host a private room",
-    examples: [""],
-    group: "vc",
+module.exports = class extends Command {
+    constructor(client: OwlClient) {
+        super(client, {
+            name: "host",
+            aliases: [""],
+            description: "Host a private room",
+            example: "",
+            group: "vc",
 
-    guildOnly: true,
-    adminOnly: false,
-    slash: true,
+            guildOnly: true,
+            adminOnly: false,
+            slash: true,
 
-    throttling: {
-        duration: 60,
-        usages: 1,
-    },
+            throttling: {
+                duration: 60,
+                usages: 1,
+            },
+        });
+    }
 
 
-    async execute(author: GuildMember, _: undefined, client: Client) {
+    async run(author: GuildMember, _: undefined, client: OwlClient) {
         const conn = client.conn;
         try {
             // Check if in vc.
@@ -82,5 +87,5 @@ module.exports = {
             console.log(e);
             return defaultErr;
         }
-    },
+    }
 };

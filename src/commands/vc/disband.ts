@@ -1,24 +1,30 @@
 import { Logs_Event } from "@prisma/client";
-import { Client, GuildMember, Message, VoiceChannel } from "discord.js";
+import { GuildMember, VoiceChannel, Message } from "discord.js";
 import logHandler from "../../middleware/logHandler";
 import { defaultErr } from "../../middleware/modules";
-module.exports = {
-    name: "disband",
-    aliases: [""],
-    description: "Remove your private room.",
-    examples: [""],
-    group: "vc",
+import { Command, OwlClient } from "../../types/classes";
 
-    guildOnly: true,
-    adminOnly: false,
-    slash: true,
+module.exports = class extends Command {
+    constructor(client: OwlClient) {
+        super(client, {
+            name: "disband",
+            aliases: [""],
+            description: "Remove your private room.",
+            example: "",
+            group: "vc",
 
-    throttling: {
-        duration: 30,
-        usages: 3,
-    },
+            guildOnly: true,
+            adminOnly: false,
+            slash: true,
 
-    async execute(author: GuildMember, _: undefined, client: Client) {
+            throttling: {
+                duration: 30,
+                usages: 3,
+            },
+        });
+    }
+
+    async run(author: GuildMember, _: undefined, client: OwlClient) {
         const db = client.conn;
         try {
             const result = await db.voiceChannels.update({
@@ -55,7 +61,7 @@ module.exports = {
             console.log(e);
             return defaultErr;
         }
-    },
+    }
 };
 
 export function callback(msg: Message): void {

@@ -1,23 +1,29 @@
-import { Client, GuildMember } from "discord.js";
-import { Iresponse } from "../../interfaces";
+import { GuildMember } from "discord.js";
 import { defaultErr } from "../../middleware/modules";
-module.exports = {
-    name: "private",
-    aliases: [""],
-    description: "toggles privacy",
-    examples: [""],
-    group: "vc",
+import { Command, OwlClient } from "../../types/classes";
+import { MsgResponse } from "../../types/types";
 
-    guildOnly: true,
-    adminOnly: false,
-    slash: false,
+module.exports = class extends Command {
+    constructor(client: OwlClient) {
+        super(client, {
+            name: "private",
+            aliases: [""],
+            description: "toggles privacy",
+            example: "",
+            group: "vc",
 
-    throttling: {
-        duration: 30,
-        usages: 3,
-    },
+            guildOnly: true,
+            adminOnly: false,
+            slash: false,
 
-    async execute(author: GuildMember, _: undefined, { conn }: Client): Promise<Iresponse> {
+            throttling: {
+                duration: 30,
+                usages: 3,
+            },
+        });
+    }
+
+    async run(author: GuildMember, _: undefined, { conn }: OwlClient): Promise<MsgResponse> {
         try {
             // Make vc private/open
             const result = await conn.voiceChannels.updateMany({
@@ -37,5 +43,5 @@ module.exports = {
             console.log(e);
             return defaultErr;
         }
-    },
+    }
 };

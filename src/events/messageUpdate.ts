@@ -1,8 +1,8 @@
 import { Logs_Event } from "@prisma/client";
-import { Client, Message, PartialMessage, User } from "discord.js";
+import { OwlClient, Message, PartialMessage, User } from "discord.js";
 import logHandler from "../middleware/logHandler";
 
-export default function messageUpdate(_client: Client) {
+export default function messageUpdate(_client: OwlClient) {
 
     return async (oldmsg: Message | PartialMessage, newmsg: Message | PartialMessage): Promise<void> => {
         try {

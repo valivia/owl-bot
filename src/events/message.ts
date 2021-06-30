@@ -1,10 +1,10 @@
-import { Client, GuildMember, Message } from "discord.js";
+import { OwlClient, GuildMember, Message } from "discord.js";
 import settings from "../../settings.json";
 import { runCommand } from "../middleware/commandhandler";
 
 const options = settings.Options;
 
-export default function message(client: Client) {
+export default function message(client: OwlClient) {
 
     return async (msg: Message): Promise<void> => {
         try {
@@ -62,7 +62,7 @@ export default function message(client: Client) {
                 return;
             }
 
-            msg.lineReply(response.content);
+            msg.lineReplyNoMention(response.content);
 
         } catch (error) {
             console.error(error);

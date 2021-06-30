@@ -4,17 +4,18 @@ colors.enable();
 dotenv.config();
 
 import fs from "fs";
-import discord, { Client } from "discord.js";
+import discord from "discord.js";
 import "discord-reply";
 
 import { getCommands, runCommand } from "./middleware/commandhandler";
 import { getMember } from "./middleware/modules";
 import { PrismaClient } from ".prisma/client";
 import { initLog } from "./middleware/logHandler";
+import { OwlClient } from "./types/classes";
 
-export default function discordBot(db: PrismaClient): Client {
+export default function discordBot(db: PrismaClient): OwlClient {
 
-    const client = new discord.Client();
+    const client = new discord.Client() as OwlClient;
 
     // EVENTS
 
@@ -51,7 +52,7 @@ export default function discordBot(db: PrismaClient): Client {
                     }
                 });
 
-            console.log(` > Client ready, logged in as ${client.user.username}#${client.user.discriminator} (${client.user.id})`.magenta);
+            console.log(` > OwlClient ready, logged in as ${client.user.username}#${client.user.discriminator} (${client.user.id})`.magenta);
 
             // subLoop(client);
 

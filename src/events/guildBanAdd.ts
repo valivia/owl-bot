@@ -1,14 +1,14 @@
 import colors from "colors";
 colors.enable();
 
-import { Client, Guild, User } from "discord.js";
+import { OwlClient, Guild, User } from "discord.js";
 import { Rcon } from "rcon-client";
 import settings from "../../settings.json";
 import logHandler from "../middleware/logHandler";
 import { getName } from "../middleware/modules";
 import { Logs_Event } from "@prisma/client";
 
-export default function guildBanAdd(client: Client) {
+export default function guildBanAdd(client: OwlClient) {
     const conn = client.conn;
     return async (guild: Guild, user: User) => {
         try {

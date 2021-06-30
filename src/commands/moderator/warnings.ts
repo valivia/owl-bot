@@ -1,34 +1,39 @@
-import { Client, GuildMember, MessageEmbed } from "discord.js";
+import { GuildMember, MessageEmbed } from "discord.js";
 import moment from "moment";
-import { argType, Iresponse } from "../../interfaces";
+import { Command, OwlClient } from "../../types/classes";
+import { argType, MsgResponse } from "../../types/types";
 
-module.exports = {
-    name: "warnings",
-    aliases: ["warns"],
-    description: "shows a user's warnings",
-    example: "@valivia",
-    group: "moderator",
+module.exports = class extends Command {
+    constructor(client: OwlClient) {
+        super(client, {
+            name: "warnings",
+            aliases: ["warns"],
+            description: "shows a user's warnings",
+            example: "@valivia",
+            group: "moderator",
 
-    guildOnly: true,
-    adminOnly: false,
-    slash: true,
+            guildOnly: true,
+            adminOnly: false,
+            slash: true,
 
-    args: [
-        {
-            "type": argType.user,
-            "name": "member",
-            "description": "which user's warnings to display.",
-            "default": false,
-            "required": true,
-        },
-    ],
+            args: [
+                {
+                    "type": argType.user,
+                    "name": "member",
+                    "description": "which user's warnings to display.",
+                    "default": false,
+                    "required": true,
+                },
+            ],
 
-    throttling: {
-        duration: 30,
-        usages: 3,
-    },
+            throttling: {
+                duration: 30,
+                usages: 3,
+            },
+        });
+    }
 
-    async execute(author: GuildMember, { member }: { member: GuildMember }, { conn }: Client): Promise<Iresponse> {
+    async run(author: GuildMember, { member }: { member: GuildMember }, { conn }: OwlClient): Promise<MsgResponse> {
         try {
             // Get from DB.
             const warnings = await conn.warnings.findMany({ where: { UserID: member.id, GuildID: member.guild.id }, orderBy: { Created: "asc" } });
@@ -61,5 +66,5 @@ module.exports = {
             console.log(e);
             return { type: "text", content: "an error occured" };
         }
-    },
+    }
 };

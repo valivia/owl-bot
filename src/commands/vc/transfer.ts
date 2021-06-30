@@ -1,20 +1,29 @@
-import { Message } from "discord.js";
-module.exports = {
-    name: "transfer",
+import { GuildMember } from "discord.js";
+import { defaultErr } from "../../middleware/modules";
+import { Command, OwlClient } from "../../types/classes";
+import { MsgResponse } from "../../types/types";
 
-    aliases: [""],
-    description: "transfer ownership",
-    examples: [""],
-    group: "vc",
-    guildOnly: true,
-    required: true,
+module.exports = class extends Command {
+    constructor(client: OwlClient) {
+        super(client, {
+            name: "transfer",
 
-    throttling: {
-        duration: 30,
-        usages: 3,
-    },
+            aliases: [""],
+            description: "transfer ownership",
+            example: "",
+            group: "vc",
+            guildOnly: true,
+            adminOnly: false,
+            slash: false,
 
-    async execute(msg: Message) {
+            throttling: {
+                duration: 30,
+                usages: 1,
+            },
+        });
+    }
+
+    async run(_author: GuildMember): Promise<MsgResponse> {
         try {
             /*
             const pingedUser = args[0] as User;
@@ -29,10 +38,10 @@ module.exports = {
                 // Make vc private.
                 await conn.query("UPDATE `VoiceChannels` SET Open = 0 WHERE `UserID` = ?", msg.author.id);
             }*/
-            return;
+            return defaultErr;
         } catch (e) {
             console.log(e);
-            return msg.reply("an error occured");
+            return defaultErr;
         }
-    },
+    }
 };

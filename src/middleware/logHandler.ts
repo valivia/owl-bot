@@ -1,9 +1,9 @@
 import { Logs_Event } from "@prisma/client";
 import colors from "colors";
-import { Client, MessageEmbed, User } from "discord.js";
+import { OwlClient, MessageEmbed, User } from "discord.js";
 colors.enable();
 
-export let client: Client;
+export let client: OwlClient;
 
 export default async function logHandler(type: Logs_Event, guild: string, user?: User, content?: string, mod?: User | undefined): Promise<void> {
 
@@ -27,6 +27,6 @@ export default async function logHandler(type: Logs_Event, guild: string, user?:
     // channel.send(embed)
     return;
 }
-export function initLog(clientVar: Client): void {
+export function initLog(clientVar: OwlClient): void {
     client = clientVar;
 }

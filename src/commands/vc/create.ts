@@ -1,34 +1,39 @@
-import { Client, GuildCreateChannelOptions, GuildMember, VoiceChannel } from "discord.js";
-import { argType, Iresponse } from "../../interfaces";
+import { GuildMember, GuildCreateChannelOptions, VoiceChannel } from "discord.js";
 import { defaultErr } from "../../middleware/modules";
+import { Command, OwlClient } from "../../types/classes";
+import { argType, MsgResponse } from "../../types/types";
 
-module.exports = {
-    name: "create",
-    aliases: [""],
-    description: "creates a new priv room.",
-    examples: ["create myPrivateRoom"],
-    group: "moderator",
+module.exports = class extends Command {
+    constructor(client: OwlClient) {
+        super(client, {
+            name: "create",
+            aliases: [""],
+            description: "creates a new priv room.",
+            example: "create myPrivateRoom",
+            group: "moderator",
 
-    guildOnly: true,
-    adminOnly: false,
-    slash: true,
+            guildOnly: true,
+            adminOnly: false,
+            slash: true,
 
-    args: [
-        {
-            "type": argType.string,
-            "name": "channelName",
-            "description": "Name of the channel",
-            "default": false,
-            "required": true,
-        },
-    ],
+            args: [
+                {
+                    "type": argType.string,
+                    "name": "channelName",
+                    "description": "Name of the channel",
+                    "default": false,
+                    "required": true,
+                },
+            ],
 
-    throttling: {
-        duration: 30,
-        usages: 3,
-    },
+            throttling: {
+                duration: 30,
+                usages: 3,
+            },
+        });
+    }
 
-    async execute(author: GuildMember, { channelName }: { channelName: string }, client: Client): Promise<Iresponse> {
+    async run(author: GuildMember, { channelName }: { channelName: string }, client: OwlClient): Promise<MsgResponse> {
         const conn = client.conn;
         try {
             const options: GuildCreateChannelOptions = {
@@ -56,5 +61,5 @@ module.exports = {
             console.log(e);
             return defaultErr;
         }
-    },
+    }
 };

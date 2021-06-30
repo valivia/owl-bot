@@ -1,29 +1,26 @@
 import colors from "colors";
 colors.enable();
 
-import { Client, Collection, Guild, GuildMember, Message, PermissionResolvable, User } from "discord.js";
+import { Collection, Guild, GuildMember, Message, PermissionResolvable, User } from "discord.js";
 import fs from "fs";
-import { ICommands, Iresponse } from "../interfaces";
 import settings from "../../settings.json";
+import { Command, OwlClient } from "../types/classes";
+import { MsgResponse, CommandInfo } from "../types/types";
 import { defaultErr, getChannel, getCommand, getMember, getRole } from "./modules";
 const options = settings.Options;
 
-export async function getCommands(client: Client): Promise<void> {
+export async function getCommands(client: OwlClient): Promise<void> {
     client.commands = new Collection();
     const conn = client.conn;
-    // get folders.
     const folders = fs.readdirSync("./src/commands/");
-    // Loop through folders.
     for (const folder of folders) {
-        // Get all files in folder.
         const commandFiles = fs.readdirSync(`./src/commands/${folder}`).filter(file => file.endsWith(".js"));
-        // Loop through files.
         for (const file of commandFiles) {
-            // Get file.
-            const command = await import(`../commands/${folder}/${file}`) as ICommands;
+            const cmdClass = (await import(`../commands/${folder}/${file}`)).default;
+            const command = new cmdClass() as Command;
+
             if (command == undefined) { continue; }
 
-            // search for commands with same name.
             const cmd = getCommand(client, command.name);
 
             // throw err.
@@ -66,7 +63,7 @@ export async function getCommands(client: Client): Promise<void> {
                     data: {
                         Name: command.name,
                         Disabled: false,
-                        Info: JSON.stringify(command.default),
+                        Info: JSON.stringify(command),
                     },
                 });
             }
@@ -81,7 +78,7 @@ export async function getCommands(client: Client): Promise<void> {
     }
 }
 
-export async function runCommand(user: GuildMember | User | null, commandName: string, args: string[], client: Client, msg?: Message): Promise<Iresponse> {
+export async function runCommand(user: GuildMember | User | null, commandName: string, args: string[], client: OwlClient, msg?: Message): Promise<MsgResponse> {
     const command = getCommand(client, commandName);
     if (user === null) { return defaultErr; }
     if (command === undefined) { return { type: "disabled", content: "command doesnt exist" }; }
@@ -102,11 +99,11 @@ export async function runCommand(user: GuildMember | User | null, commandName: s
     }
 
     // Call function if it doesnt have args.
-    if (command.args === undefined) { return await command.execute(user, undefined, client); }
+    if (command.args === undefined) { return await command.run(user, undefined, client); }
 
     const commandArgs = await argumenthanlder(command, args, client, guild);
 
-    return await command.execute(user, commandArgs, client, msg);
+    return await command.run(user, commandArgs, client, msg);
 }
 
 function hasPerms(required: PermissionResolvable[], member: GuildMember): boolean {
@@ -116,7 +113,7 @@ function hasPerms(required: PermissionResolvable[], member: GuildMember): boolea
     return true;
 }
 
-async function argumenthanlder(command: ICommands, args: string[], client: Client, guild: Guild | undefined): Promise<any> {
+async function argumenthanlder(command: CommandInfo, args: string[], client: OwlClient, guild: Guild | undefined): Promise<any> {
     const commandArgs = {};
     for (const index in command.args) {
         let value;

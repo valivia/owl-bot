@@ -1,24 +1,29 @@
-import { Client, GuildMember, MessageEmbed } from "discord.js";
-import { Iresponse } from "../../interfaces";
+import { GuildMember, MessageEmbed } from "discord.js";
 import { defaultErr } from "../../middleware/modules";
+import { Command, OwlClient } from "../../types/classes";
+import { MsgResponse } from "../../types/types";
 
-module.exports = {
-    name: "stop",
-    aliases: ["fuckoff", "leave"],
-    description: "Stops bot",
-    example: "",
-    group: "music",
+module.exports = class extends Command {
+    constructor(client: OwlClient) {
+        super(client, {
+            name: "stop",
+            aliases: ["fuckoff", "leave"],
+            description: "Stops bot",
+            example: "",
+            group: "music",
 
-    guildOnly: true,
-    adminOnly: false,
-    slash: false,
+            guildOnly: true,
+            adminOnly: false,
+            slash: false,
 
-    throttling: {
-        duration: 30,
-        usages: 1,
-    },
+            throttling: {
+                duration: 30,
+                usages: 1,
+            },
+        });
+    }
 
-    async execute(author: GuildMember, _client: Client): Promise<Iresponse> {
+    async run(author: GuildMember): Promise<MsgResponse> {
         try {
             const vc = author.voice.channel;
             const connection = author.guild.voice?.connection;
@@ -35,5 +40,5 @@ module.exports = {
             console.log(e);
             return defaultErr;
         }
-    },
+    }
 };

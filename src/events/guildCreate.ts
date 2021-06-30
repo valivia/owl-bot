@@ -2,10 +2,10 @@ import { Logs_Event } from "@prisma/client";
 import colors from "colors";
 colors.enable();
 
-import { Client, Guild } from "discord.js";
+import { OwlClient, Guild } from "discord.js";
 import logHandler from "../middleware/logHandler";
 
-export default function guildCreate(client: Client) {
+export default function guildCreate(client: OwlClient) {
     const conn = client.conn;
     return async (guild: Guild) => {
         try {

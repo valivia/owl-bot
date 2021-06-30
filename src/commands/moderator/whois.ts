@@ -1,34 +1,39 @@
-import { Client, GuildMember } from "discord.js";
-import { argType, Iresponse } from "../../interfaces";
-import { accountExists, defaultErr, getUser } from "../../middleware/modules";
+import { GuildMember } from "discord.js";
+import { accountExists, defaultErr } from "../../middleware/modules";
+import { Command, OwlClient } from "../../types/classes";
+import { argType, MsgResponse } from "../../types/types";
 
-module.exports = {
-    name: "whois",
-    aliases: [""],
-    description: "shows discord name of mc player",
-    example: "valivia",
-    group: "moderator",
+module.exports = class extends Command {
+    constructor(client: OwlClient) {
+        super(client, {
+            name: "whois",
+            aliases: [""],
+            description: "shows discord name of mc player",
+            example: "valivia",
+            group: "moderator",
 
-    guildOnly: false,
-    adminOnly: false,
-    slash: false,
+            guildOnly: false,
+            adminOnly: false,
+            slash: false,
 
-    args: [
-        {
-            "type": argType.string,
-            "name": "username",
-            "description": "which mc user to check",
-            "default": false,
-            "required": true,
-        },
-    ],
+            args: [
+                {
+                    "type": argType.string,
+                    "name": "username",
+                    "description": "which mc user to check",
+                    "default": false,
+                    "required": true,
+                },
+            ],
 
-    throttling: {
-        duration: 60,
-        usages: 2,
-    },
+            throttling: {
+                duration: 60,
+                usages: 2,
+            },
+        });
+    }
 
-    async execute(_author: GuildMember, { username }: { username: string }, client: Client): Promise<Iresponse> {
+    async run(_author: GuildMember, { username }: { username: string }, client: OwlClient): Promise<MsgResponse> {
         try {
             username = username.substr(0, 64);
 
@@ -43,7 +48,7 @@ module.exports = {
 
             if (query === null) return { type: "text", content: "No account linked.." };
 
-            const user = await getUser(client, query.UserID);
+            const user = await client.users.fetch(query.UserID);
 
             if (user === null) return { type: "text", content: "couldnt find user." };
             // Respond.
@@ -53,5 +58,5 @@ module.exports = {
             // If cant connect to mc server.
             return defaultErr;
         }
-    },
+    }
 };

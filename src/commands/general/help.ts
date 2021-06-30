@@ -1,38 +1,43 @@
-import { Client, GuildMember, MessageEmbed, User } from "discord.js";
+import { GuildMember, User, MessageEmbed } from "discord.js";
 import { Options } from "../../../settings.json";
-import { argType, ICommands, Iresponse } from "../../interfaces";
+import { Command, OwlClient } from "../../types/classes";
+import { argType, MsgResponse, CommandInfo } from "../../types/types";
 
-module.exports = {
-    name: "help",
-    aliases: ["?"],
-    description: "shows all help commands",
-    examples: [""],
-    group: "general",
+module.exports = class extends Command {
+    constructor(client: OwlClient) {
+        super(client, {
+            name: "help",
+            aliases: ["?"],
+            description: "shows all help commands",
+            example: "",
+            group: "general",
 
-    guildOnly: false,
-    adminOnly: false,
-    slash: true,
+            guildOnly: false,
+            adminOnly: false,
+            slash: true,
 
-    args: [
-        {
-            "type": argType.string,
-            "name": "commandName",
-            "description": "what command do you want info on?",
-            "default": false,
-            "required": false,
-        },
-    ],
+            args: [
+                {
+                    "type": argType.string,
+                    "name": "commandName",
+                    "description": "what command do you want info on?",
+                    "default": false,
+                    "required": false,
+                },
+            ],
 
-    throttling: {
-        duration: 30,
-        usages: 1,
-    },
+            throttling: {
+                duration: 30,
+                usages: 1,
+            },
+        });
+    }
 
-    async execute(author: GuildMember | User, { commandName }: { commandName: string | undefined; }, client: Client): Promise<Iresponse> {
+    async run(author: GuildMember | User, { commandName }: { commandName: string | undefined; }, client: OwlClient): Promise<MsgResponse> {
         const { commands } = client;
         let dm = true;
         if ("user" in author) {
-            author = author.user,
+            author = author.user;
             dm = false;
         }
 
@@ -62,7 +67,7 @@ module.exports = {
         }
 
         const cmdName = commandName?.toLowerCase();
-        const command = commands.get(cmdName) as ICommands || commands.find((c: { aliases: string | string[]; }) => c.aliases && c.aliases.includes(cmdName));
+        const command = commands.get(cmdName) as CommandInfo || commands.find((c: { aliases: string | string[]; }) => c.aliases && c.aliases.includes(cmdName));
 
         if (command === undefined) {
             return { type: "text", content: "invalid command.." };
@@ -79,5 +84,5 @@ module.exports = {
             .setTimestamp();
 
         return { type: "embed", content: embed };
-    },
+    }
 };

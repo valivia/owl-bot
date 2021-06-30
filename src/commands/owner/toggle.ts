@@ -1,34 +1,39 @@
-import { Client, GuildMember } from "discord.js";
-import { argType, Iresponse } from "../../interfaces";
+import { GuildMember } from "discord.js";
 import { defaultErr, getCommand } from "../../middleware/modules";
+import { Command, OwlClient } from "../../types/classes";
+import { argType, MsgResponse } from "../../types/types";
 
-module.exports = {
-    name: "toggle",
-    aliases: [""],
-    description: "toggles a command",
-    example: "join",
-    group: "owner",
+module.exports = class extends Command {
+    constructor(client: OwlClient) {
+        super(client, {
+            name: "toggle",
+            aliases: [""],
+            description: "toggles a command",
+            example: "join",
+            group: "owner",
 
-    guildOnly: false,
-    adminOnly: true,
-    slash: false,
+            guildOnly: false,
+            adminOnly: true,
+            slash: false,
 
-    args: [
-        {
-            "type": argType.string,
-            "name": "commandName",
-            "description": "command to toggle.",
-            "default": false,
-            "required": true,
-        },
-    ],
+            args: [
+                {
+                    "type": argType.string,
+                    "name": "commandName",
+                    "description": "command to toggle.",
+                    "default": false,
+                    "required": true,
+                },
+            ],
 
-    throttling: {
-        duration: 30,
-        usages: 3,
-    },
+            throttling: {
+                duration: 30,
+                usages: 3,
+            },
+        });
+    }
 
-    async execute(_author: GuildMember, { commandName }: { commandName: string }, client: Client): Promise<Iresponse> {
+    async run(_author: GuildMember, { commandName }: { commandName: string }, client: OwlClient): Promise<MsgResponse> {
         if (commandName === undefined) return defaultErr;
         const conn = client.conn;
         try {
@@ -47,5 +52,5 @@ module.exports = {
             console.log(e);
             return defaultErr;
         }
-    },
+    }
 };

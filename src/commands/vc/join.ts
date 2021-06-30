@@ -1,33 +1,39 @@
-import { Client, GuildMember } from "discord.js";
-import { argType, Iresponse } from "../../interfaces";
+import { GuildMember } from "discord.js";
 import { defaultErr } from "../../middleware/modules";
-module.exports = {
-    name: "join",
-    aliases: [""],
-    description: "Join a private room",
-    examples: ["@valivia"],
-    group: "vc",
+import { Command, OwlClient } from "../../types/classes";
+import { argType, MsgResponse } from "../../types/types";
 
-    guildOnly: true,
-    adminOnly: false,
-    slash: true,
+module.exports = class extends Command {
+    constructor(client: OwlClient) {
+        super(client, {
+            name: "join",
+            aliases: [""],
+            description: "Join a private room",
+            example: "@valivia",
+            group: "vc",
 
-    args: [
-        {
-            "type": argType.user,
-            "name": "user",
-            "description": "Which user to join",
-            "default": false,
-            "required": true,
-        },
-    ],
+            guildOnly: true,
+            adminOnly: false,
+            slash: true,
 
-    throttling: {
-        duration: 30,
-        usages: 3,
-    },
+            args: [
+                {
+                    "type": argType.user,
+                    "name": "user",
+                    "description": "Which user to join",
+                    "default": false,
+                    "required": true,
+                },
+            ],
 
-    async execute(author: GuildMember, { user }: { user: GuildMember }, client: Client): Promise<Iresponse> {
+            throttling: {
+                duration: 30,
+                usages: 3,
+            },
+        });
+    }
+
+    async run(author: GuildMember, { user }: { user: GuildMember }, client: OwlClient): Promise<MsgResponse> {
         const conn = client.conn;
         try {
 
@@ -56,7 +62,7 @@ module.exports = {
             console.log(e);
             return defaultErr;
         }
-    },
+    }
 };
 
 /*

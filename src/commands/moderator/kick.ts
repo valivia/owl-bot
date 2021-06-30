@@ -1,47 +1,52 @@
 import { Logs_Event } from "@prisma/client";
 import { GuildMember, MessageEmbed } from "discord.js";
-import { argType, Iresponse } from "../../interfaces";
 import logHandler from "../../middleware/logHandler";
+import { Command, OwlClient } from "../../types/classes";
+import { argType, MsgResponse } from "../../types/types";
 
-module.exports = {
-    name: "kick",
-    aliases: [""],
-    description: "kicks a user",
-    example: "@valivia being cringe",
-    group: "moderator",
+module.exports = class extends Command {
+    constructor(client: OwlClient) {
+        super(client, {
+            name: "kick",
+            aliases: [""],
+            description: "kicks a user",
+            example: "@valivia being cringe",
+            group: "moderator",
 
-    guildOnly: true,
-    adminOnly: false,
-    slash: true,
+            guildOnly: true,
+            adminOnly: false,
+            slash: true,
 
-    args: [
-        {
-            "type": argType.user,
-            "name": "member",
-            "description": "User to kick",
-            "default": false,
-            "required": true,
-        },
-        {
-            "type": argType.string,
-            "name": "reason",
-            "description": "Reason why the user is getting kicked",
-            "default": false,
-            "required": false,
-        },
-    ],
+            args: [
+                {
+                    "type": argType.user,
+                    "name": "member",
+                    "description": "User to kick",
+                    "default": false,
+                    "required": true,
+                },
+                {
+                    "type": argType.string,
+                    "name": "reason",
+                    "description": "Reason why the user is getting kicked",
+                    "default": false,
+                    "required": false,
+                },
+            ],
 
-    permissions: {
-        self: ["KICK_MEMBERS"],
-        user: ["KICK_MEMBERS"],
-    },
+            permissions: {
+                self: ["KICK_MEMBERS"],
+                user: ["KICK_MEMBERS"],
+            },
 
-    throttling: {
-        duration: 30,
-        usages: 3,
-    },
+            throttling: {
+                duration: 30,
+                usages: 3,
+            },
+        });
+    }
 
-    async execute(author: GuildMember, { member, reason }: { member: GuildMember, reason: string }): Promise<Iresponse> {
+    async run(author: GuildMember, { member, reason }: { member: GuildMember, reason: string }): Promise<MsgResponse> {
         if (reason === undefined) { reason = "No reason provided"; }
         try {
             const result = await member.kick(reason).catch(() => { return false; });
@@ -60,5 +65,5 @@ module.exports = {
             console.log(e);
             return { type: "text", content: "an error occured" };
         }
-    },
+    }
 };

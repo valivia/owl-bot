@@ -1,6 +1,6 @@
-import { Client, VoiceState } from "discord.js";
+import { OwlClient, VoiceState } from "discord.js";
 
-export default function voiceUpdate(_client: Client) {
+export default function voiceUpdate(_client: OwlClient) {
 
     return async (_oldState: VoiceState, _newState: VoiceState) => {
         try {

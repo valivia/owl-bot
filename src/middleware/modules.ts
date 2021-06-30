@@ -1,12 +1,12 @@
-import { Client, GuildChannel, GuildMember, Role } from "discord.js";
-import { ICommands, IWhitelist, whitelistType } from "../interfaces";
+import { OwlClient, GuildChannel, GuildMember, Role } from "discord.js";
 import axios from "axios";
 import { Rcon } from "rcon-client/lib";
 import settings from "../../settings.json";
 import logHandler from "./logHandler";
-import { Logs_Event } from "@prisma/client";
+import { Logs_Event, Whitelist } from "@prisma/client";
+import { CommandInfo, whitelistType } from "../types/types";
 
-export async function getMember(client: Client, guildID: string, userID: string): Promise<GuildMember | null> {
+export async function getMember(client: OwlClient, guildID: string, userID: string): Promise<GuildMember | null> {
     const guild = await client.guilds.fetch(guildID);
     if (guild === null) { return null; }
 
@@ -18,7 +18,7 @@ export async function getMember(client: Client, guildID: string, userID: string)
     return member;
 }
 
-export async function getChannel(client: Client, guildID: string, channelID: string): Promise<GuildChannel | null> {
+export async function getChannel(client: OwlClient, guildID: string, channelID: string): Promise<GuildChannel | null> {
     const guild = await client.guilds.fetch(guildID);
     if (guild === null) { return null; }
 
@@ -27,7 +27,7 @@ export async function getChannel(client: Client, guildID: string, channelID: str
     return channel;
 }
 
-export async function getRole(client: Client, guildID: string, roleID: string): Promise<Role | null> {
+export async function getRole(client: OwlClient, guildID: string, roleID: string): Promise<Role | null> {
     const guild = await client.guilds.fetch(guildID);
     if (guild === null) { return null; }
 
@@ -40,9 +40,9 @@ export async function getRole(client: Client, guildID: string, roleID: string): 
     return role;
 }
 
-export function getCommand(client: Client, name: string): ICommands | undefined {
-    const command = client.commands.get(name) as ICommands;
-    const cmdAlias = client.commands.find((cmd: { aliases: string | string[]; }) => cmd.aliases && cmd.aliases.includes(name)) as ICommands;
+export function getCommand(client: OwlClient, name: string): CommandInfo | undefined {
+    const command = client.commands.get(name) as CommandInfo;
+    const cmdAlias = client.commands.find((cmd: { aliases: string | string[]; }) => cmd.aliases && cmd.aliases.includes(name)) as CommandInfo;
 
     return cmdAlias !== undefined ? cmdAlias : (command !== undefined ? command : undefined);
 }
@@ -67,13 +67,13 @@ export async function getName(uuid: string): Promise<string | false> {
     return userName;
 }
 
-export async function subLoop(client: Client): Promise<void> {
+export async function subLoop(client: OwlClient): Promise<void> {
     const db = client.conn;
     const guild = await client.guilds.fetch("823993381591711786");
     const members = await guild?.members.fetch();
     if (members === undefined) { return; }
     const users = await db.whitelist.findMany({ where: { Permanent: false } });
-    const rconActions: IWhitelist[] = [];
+    const rconActions: Whitelist[] = [];
 
     for (const user of users) {
         const member: GuildMember = await members.find(({ id }: { id: string }) => id === user.UserID);
@@ -103,7 +103,7 @@ export async function subLoop(client: Client): Promise<void> {
     whitelist(rconActions);
 }
 
-export async function whitelist(content: IWhitelist[]): Promise<void> {
+export async function whitelist(content: Whitelist[]): Promise<void> {
     if (content.length == 0) return;
     const rcon = await Rcon.connect({ host: settings.rcon.host, port: settings.rcon.port, password: settings.rcon.pass })
         .catch();

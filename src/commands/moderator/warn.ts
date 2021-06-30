@@ -1,43 +1,48 @@
 import { Logs_Event } from "@prisma/client";
-import { Client, GuildMember, MessageEmbed } from "discord.js";
-import { argType, Iresponse } from "../../interfaces";
+import { GuildMember, MessageEmbed } from "discord.js";
 import logHandler from "../../middleware/logHandler";
 import { defaultErr } from "../../middleware/modules";
+import { Command, OwlClient } from "../../types/classes";
+import { argType, MsgResponse } from "../../types/types";
 
-module.exports = {
-    name: "warn",
-    aliases: [""],
-    description: "warns a user",
-    example: "@valivia memes in general",
-    group: "moderator",
+module.exports = class extends Command {
+    constructor(client: OwlClient) {
+        super(client, {
+            name: "warn",
+            aliases: [""],
+            description: "warns a user",
+            example: "@valivia memes in general",
+            group: "moderator",
 
-    guildOnly: true,
-    adminOnly: false,
-    slash: true,
+            guildOnly: true,
+            adminOnly: false,
+            slash: true,
 
-    args: [
-        {
-            "type": argType.user,
-            "name": "member",
-            "description": "User to warn",
-            "default": false,
-            "required": true,
-        },
-        {
-            "type": argType.string,
-            "name": "reason",
-            "description": "Reason why the user is getting warned",
-            "default": false,
-            "required": false,
-        },
-    ],
+            args: [
+                {
+                    "type": argType.user,
+                    "name": "member",
+                    "description": "User to warn",
+                    "default": false,
+                    "required": true,
+                },
+                {
+                    "type": argType.string,
+                    "name": "reason",
+                    "description": "Reason why the user is getting warned",
+                    "default": false,
+                    "required": false,
+                },
+            ],
 
-    throttling: {
-        duration: 30,
-        usages: 3,
-    },
+            throttling: {
+                duration: 30,
+                usages: 3,
+            },
+        });
+    }
 
-    async execute(author: GuildMember, { member, reason }: { member: GuildMember, reason: string }, { conn }: Client): Promise<Iresponse> {
+    async run(author: GuildMember, { member, reason }: { member: GuildMember, reason: string }, { conn }: OwlClient): Promise<MsgResponse> {
         if (reason === undefined) { reason = "No reason provided"; }
         try {
             // insert into db.
@@ -71,5 +76,5 @@ module.exports = {
             console.log(e);
             return defaultErr;
         }
-    },
+    }
 };
