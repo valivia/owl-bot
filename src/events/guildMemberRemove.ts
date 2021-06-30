@@ -4,7 +4,6 @@ colors.enable();
 
 import { Client, Guild, User } from "discord.js";
 import logHandler from "../middleware/logHandler";
-export const name = "guildMemberRemove";
 
 export default function guildMemberRemove(_client: Client) {
     return async (guild: Guild, user: User) => {

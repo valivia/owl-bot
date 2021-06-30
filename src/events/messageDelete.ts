@@ -2,8 +2,6 @@ import { Logs_Event } from "@prisma/client";
 import { Message, PartialMessage } from "discord.js";
 import logHandler from "../middleware/logHandler";
 
-export const name = "messageDelete";
-
 export default function messageDelete() {
 
     return async (msg: Message | PartialMessage): Promise<void> => {

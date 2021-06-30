@@ -1,7 +1,7 @@
 import colors from "colors";
 colors.enable();
 
-import { Client, Collection, GuildMember, Message, User } from "discord.js";
+import { Client, Collection, Guild, GuildMember, Message, PermissionResolvable, User } from "discord.js";
 import fs from "fs";
 import { ICommands, Iresponse } from "../interfaces";
 import settings from "../../settings.json";
@@ -82,47 +82,47 @@ export async function getCommands(client: Client): Promise<void> {
 }
 
 export async function runCommand(user: GuildMember | User | null, commandName: string, args: string[], client: Client, msg?: Message): Promise<Iresponse> {
-    // Try to find the command.
     const command = getCommand(client, commandName);
-
-    // Not null.
     if (user === null) { return defaultErr; }
-
-    // Check if command exists.
     if (command === undefined) { return { type: "disabled", content: "command doesnt exist" }; }
-
-    // check if in guild.
-    if (command.guildOnly && !("user" in user)) {
-        // Return error.
-        return { type: "content", content: "This command is limited to servers." };
-    }
-
+    if (command.guildOnly && !("user" in user)) { return { type: "content", content: "This command is limited to servers." }; }
     const guild = "user" in user ? user.guild : undefined;
+    if (command.adminOnly && user.id !== options.owner) return { type: "disabled", content: "This command is only available for admins" };
+    if (command.disabled && user.id !== options.owner) return { type: "content", content: "This command is currently disabled." };
 
-    // check if admin command.
-    if (command.adminOnly && user.id !== options.owner) {
-        // Return error.
-        return { type: "disabled", content: "This command is only available for admins" };
+    if (command.permissions !== undefined && guild) {
+        user = user as GuildMember;
+        if (command.permissions.user && !hasPerms(command.permissions.user, user)) {
+            return { type: "disabled", content: "You dont have the permissions to do that." };
+        }
+        if (!user.guild.me) return defaultErr;
+        if (command.permissions.self && !hasPerms(command.permissions.self, user.guild.me)) {
+            return { type: "content", content: "The bot doesnt have the right permissions for this." };
+        }
     }
 
-    // Check if command is disabled.
-    if (command.disabled && user.id !== options.owner) {
-        // Return error.
-        return { type: "content", content: "This command is currently disabled." };
-    }
-
-    // Call fun if it doesnt have args.
+    // Call function if it doesnt have args.
     if (command.args === undefined) { return await command.execute(user, undefined, client); }
 
+    const commandArgs = await argumenthanlder(command, args, client, guild);
+
+    return await command.execute(user, commandArgs, client, msg);
+}
+
+function hasPerms(required: PermissionResolvable[], member: GuildMember): boolean {
+    for (const perm of required) {
+        if (!member.hasPermission(perm)) return false;
+    }
+    return true;
+}
+
+async function argumenthanlder(command: ICommands, args: string[], client: Client, guild: Guild | undefined): Promise<any> {
     const commandArgs = {};
     for (const index in command.args) {
         let value;
         const arg = command.args[index];
         let input = args[index];
-        if (input === undefined && arg.required) {
-            // Return error.
-            return { type: "content", content: `Incorrect command usage, missing the ${arg.name} variable` };
-        }
+        if (input === undefined && arg.required) return { type: "content", content: `Incorrect command usage, missing the ${arg.name} variable` };
 
         // Adds remaining text if possible.
         if (command.args.length < args.length && Number(index) + 1 == command.args.length && arg.type == 3) {
@@ -160,6 +160,5 @@ export async function runCommand(user: GuildMember | User | null, commandName: s
         commandArgs[arg.name] = value;
         continue;
     }
-
-    return await command.execute(user, commandArgs, client, msg);
+    return commandArgs;
 }

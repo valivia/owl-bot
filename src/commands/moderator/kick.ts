@@ -31,6 +31,11 @@ module.exports = {
         },
     ],
 
+    permissions: {
+        self: ["KICK_MEMBERS"],
+        user: ["KICK_MEMBERS"],
+    },
+
     throttling: {
         duration: 30,
         usages: 3,
@@ -39,7 +44,9 @@ module.exports = {
     async execute(author: GuildMember, { member, reason }: { member: GuildMember, reason: string }): Promise<Iresponse> {
         if (reason === undefined) { reason = "No reason provided"; }
         try {
-            member.kick(reason);
+            const result = await member.kick(reason).catch(() => { return false; });
+
+            if (typeof (result) == "boolean") return { type: "text", content: "Can't kick that person" };
 
             const embed = new MessageEmbed()
                 .setAuthor(`${member.user.username}#${member.user.discriminator} has been kicked`)
@@ -47,7 +54,7 @@ module.exports = {
                 .setColor(5362138);
 
             logHandler(Logs_Event.Kick, author.guild.id, member.user, reason, author.user);
-            // send embed.
+
             return { type: "embed", content: embed };
         } catch (e) {
             console.log(e);

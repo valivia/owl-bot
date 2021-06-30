@@ -2,12 +2,9 @@ import { Logs_Event } from "@prisma/client";
 import { Client, Message, PartialMessage, User } from "discord.js";
 import logHandler from "../middleware/logHandler";
 
-export const name = "messageUpdate";
+export default function messageUpdate(_client: Client) {
 
-
-export default function guildAdd(_client: Client) {
-
-    return async (oldmsg: Message | PartialMessage, newmsg: Message | PartialMessage) => {
+    return async (oldmsg: Message | PartialMessage, newmsg: Message | PartialMessage): Promise<void> => {
         try {
             if (oldmsg.author?.bot) { return; }
             if (oldmsg.guild === null) { return; }

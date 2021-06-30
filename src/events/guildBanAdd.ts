@@ -8,8 +8,6 @@ import logHandler from "../middleware/logHandler";
 import { getName } from "../middleware/modules";
 import { Logs_Event } from "@prisma/client";
 
-export const name = "guildBanAdd";
-
 export default function guildBanAdd(client: Client) {
     const conn = client.conn;
     return async (guild: Guild, user: User) => {

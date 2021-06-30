@@ -58,7 +58,7 @@ module.exports = {
             const embed = new MessageEmbed()
                 .setThumbnail(getThumbnail(searchResult.thumbnails))
                 .setTitle(`Now playing`)
-                .setDescription(`[${Util.escapeMarkdown(searchResult.title)}](${searchResult.link})`)
+                .setDescription(`[${Util.escapeMarkdown(decode(searchResult.title))}](${searchResult.link})`)
                 .setColor(5362138)
                 .setFooter(`${author.user.username} <@${author.id}>`, author.user.displayAvatarURL())
                 .setTimestamp();
@@ -80,4 +80,12 @@ function getThumbnail(thumbnails: YouTubeSearchResults["thumbnails"]): string {
     if (thumbnails.medium) return thumbnails.medium.url;
     if (thumbnails.default) return thumbnails.default.url;
     return "a";
+}
+
+function decode(string: string) {
+    return string.replace(/&apos;/g, "'")
+        .replace(/&quot;/g, "\"")
+        .replace(/&gt;/g, ">")
+        .replace(/&lt;/g, "<")
+        .replace(/&amp;/g, "&");
 }

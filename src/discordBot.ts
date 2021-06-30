@@ -3,6 +3,7 @@ colors.enable();
 
 import fs from "fs";
 import discord, { Client } from "discord.js";
+import "discord-reply";
 
 import settings from "../settings.json";
 import { getCommands, runCommand } from "./middleware/commandhandler";
@@ -42,8 +43,9 @@ export default function discordBot(db: PrismaClient): Client {
                         // Import the file.
                         await import(`./events/${file}`).then(async (module) => {
                             const Event = new module.default(client);
-                            client.on(module.name, Event);
-                            console.log(" > event added: ".magenta + module.name.green);
+                            const name = file.split(".", 1)[0];
+                            client.on(name, Event);
+                            console.log(" > event added: ".magenta + name.green);
                         });
                     }
                 });

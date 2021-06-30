@@ -5,9 +5,7 @@ colors.enable();
 import { Client, Guild } from "discord.js";
 import logHandler from "../middleware/logHandler";
 
-export const name = "guildBanAdd";
-
-export default function guildBanAdd(client: Client) {
+export default function guildCreate(client: Client) {
     const conn = client.conn;
     return async (guild: Guild) => {
         try {

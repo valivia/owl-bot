@@ -4,8 +4,6 @@ import { runCommand } from "../middleware/commandhandler";
 
 const options = settings.Options;
 
-export const name = "message";
-
 export default function message(client: Client) {
 
     return async (msg: Message): Promise<void> => {
@@ -64,7 +62,7 @@ export default function message(client: Client) {
                 return;
             }
 
-            msg.channel.send(response.content);
+            msg.lineReply(response.content);
 
         } catch (error) {
             console.error(error);

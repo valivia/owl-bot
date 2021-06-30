@@ -1,4 +1,4 @@
-import { Client, GuildMember, Message, MessageEmbed, User } from "discord.js";
+import { Client, GuildMember, Message, MessageEmbed, PermissionResolvable, PermissionString, User } from "discord.js";
 
 export interface ICommands {
     name: string;
@@ -12,13 +12,18 @@ export interface ICommands {
     disabled?: boolean;
     slash: boolean;
 
-    args: {
+    args?: {
         type: string | number;
         name: string;
         description: string;
         default: boolean | string;
         required: boolean;
     }[]
+
+    permissions?: {
+        self?: PermissionResolvable[]
+        user?: PermissionResolvable[]
+    }
 
     throttling: {
         duration: number;
