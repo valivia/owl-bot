@@ -28,8 +28,8 @@ export type Argument = {
 }
 
 export type Permissions = {
-    self: PermissionResolvable[]
-    user: PermissionResolvable[]
+    self: PermissionResolvable[] | null;
+    user: PermissionResolvable[] | null;
 }
 
 export type Throttling = {
@@ -46,6 +46,12 @@ export type MsgResponse = {
 export type Whitelist = {
     type: string;
     UUID: string;
+}
+
+export type RCONLogin = {
+    host: string;
+    port: number;
+    password: string;
 }
 
 // eslint-disable-next-line no-shadow

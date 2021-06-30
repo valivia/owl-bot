@@ -1,10 +1,7 @@
 import { GuildChannel, GuildMember, Role } from "discord.js";
 import axios from "axios";
 import { Rcon } from "rcon-client/lib";
-import settings from "../../settings.json";
-import logHandler from "./logHandler";
-import { Logs_Event } from "@prisma/client";
-import { whitelistType, Whitelist } from "../types/types";
+import { RCONLogin } from "../types/types";
 import { Command, OwlClient } from "../types/classes";
 
 export async function getMember(client: OwlClient, guildID: string, userID: string): Promise<GuildMember | null> {
@@ -48,7 +45,7 @@ export function getCommand(client: OwlClient, name: string): Command | undefined
     return cmdAlias !== undefined ? cmdAlias : (command !== undefined ? command : undefined);
 }
 
-export async function accountExists(username: string): Promise<boolean | string> {
+export async function getMcUUID(username: string): Promise<boolean | string> {
     let code = false;
     await axios.get(`https://api.mojang.com/users/profiles/minecraft/${username}`)
         .then(response => {
@@ -59,7 +56,7 @@ export async function accountExists(username: string): Promise<boolean | string>
 
 export const defaultErr = { type: "text", content: "an error occured" };
 
-export async function getName(uuid: string): Promise<string | false> {
+export async function getMcName(uuid: string): Promise<string | false> {
     let userName = false;
     await axios.get(`https://sessionserver.mojang.com/session/minecraft/profile/${uuid}`)
         .then(response => {
@@ -68,6 +65,18 @@ export async function getName(uuid: string): Promise<string | false> {
     return userName;
 }
 
+export async function RCONHandler(command: string, login: RCONLogin): Promise<{ message: string, code: string }> {
+    const rcon = await Rcon.connect({ host: login.host, port: login.port, password: login.password }).catch(() => { return false; });
+    if (typeof (rcon) == "boolean") { return { message: "Minecraft server unreachable", code: "MC_CONN_ERR" }; }
+    // Execute command.
+    const response = await rcon.send(command);
+    // End connection.
+    rcon.end();
+    // Return.
+    return { message: response, code: `${response.startsWith("Added") ? "SUCCESS" : "GENERIC_ERR"}` };
+}
+
+/*
 export async function subLoop(client: OwlClient): Promise<void> {
     const db = client.db;
     const guild = await client.guilds.fetch("823993381591711786");
@@ -101,10 +110,10 @@ export async function subLoop(client: OwlClient): Promise<void> {
         continue;
     }
 
-    whitelist(rconActions);
+    whitelistLoop(rconActions);
 }
 
-export async function whitelist(content: Whitelist[]): Promise<void> {
+export async function whitelistLoop(content: Whitelist[]): Promise<void> {
     if (content.length == 0) return;
     const rcon = await Rcon.connect({ host: settings.rcon.host, port: settings.rcon.port, password: settings.rcon.pass })
         .catch();
@@ -118,4 +127,4 @@ export async function whitelist(content: Whitelist[]): Promise<void> {
         console.log(response);
     }
     rcon.end();
-}
+}*/
