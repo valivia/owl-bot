@@ -1,80 +1,13 @@
 import colors from "colors";
 colors.enable();
 
-import { Collection, Guild, GuildMember, Message, PermissionResolvable, User } from "discord.js";
-import fs from "fs";
+import { Guild, GuildMember, Message, PermissionResolvable, User } from "discord.js";
 import settings from "../../settings.json";
 import { Command, OwlClient } from "../types/classes";
-import { MsgResponse } from "../types/types";
+import { Argument, MsgResponse } from "../types/types";
 import { defaultErr, getChannel, getCommand, getMember, getRole } from "./modules";
 const options = settings.Options;
 
-
-function argTypeValidator(command: Command) {
-    if (!command.args) return;
-    for (const arg of command.args) {
-        const num = arg.type;
-        if (num > 8 || num < 3 || !Number.isFinite(num)) {
-            console.log(`${num} is an invalid arg type at ${command.name}`.red.bold);
-            process.exit();
-        }
-    }
-}
-
-export async function getCommands(client: OwlClient): Promise<void> {
-    client.commands = new Collection();
-    const db = client.db;
-    const folders = fs.readdirSync("./src/commands/");
-    for (const folder of folders) {
-        const commandFiles = fs.readdirSync(`./src/commands/${folder}`).filter(file => file.endsWith(".js"));
-        for (const file of commandFiles) {
-            const cmdClass = (await import(`../commands/${folder}/${file}`)).default;
-            const command = new cmdClass() as Command;
-
-            if (command == undefined) { continue; }
-
-            if (getCommand(client, command.name) !== undefined) {
-                console.log(`duplicate commands with name: ${command.name}`.red.bold);
-                process.exit();
-            }
-
-            argTypeValidator(command);
-
-            // Get command from db.
-            const query = await db.commands.findUnique({ where: { Name: command.name } });
-
-            // Add to slash commands.
-            if (query === null && command.slash) {
-                client.api.applications(client.user?.id).commands.post({
-                    data: {
-                        name: command.name,
-                        description: command.description,
-                        options: command.args,
-                    },
-                });
-                console.log(`${command.name} has been added as slash command.`);
-            }
-
-            // Insert command into db if not there yet.
-            if (query === null) {
-                await db.commands.create({
-                    data: {
-                        Name: command.name,
-                        Disabled: false,
-                        Info: JSON.stringify(command),
-                    },
-                });
-            }
-
-            // Set disable status of command.
-            command.disabled = query?.Disabled ? true : false;
-            // Add command to client.
-            client.commands.set(command.name, command);
-            // Log.
-            console.log(" > Command added: ".magenta + `${command.disabled ? command.name.red : command.name.green}`);
-        }
-    }
-}
 
 export async function runCommand(user: GuildMember | User | null, commandName: string, args: string[], client: OwlClient, msg?: Message): Promise<MsgResponse> {
     const command = getCommand(client, commandName);
@@ -111,9 +44,9 @@ function hasPerms(required: PermissionResolvable[], member: GuildMember): boolea
     return true;
 }
 
-async function argumenthanlder(command: Command, args: string[], client: OwlClient, guild: Guild | undefined): Promise<any> {
+async function argumenthanlder(command: Command, args: string[], client: OwlClient, guild: Guild | undefined): Promise<Record<string, unknown>> {
     const commandArgs: Record<string, unknown> = {};
-    if (command.args === undefined) return null;
+    command.args = command.args as Argument[];
     for (let index = 0; index < command.args?.length; index++) {
         let value;
         const arg = command.args[index];

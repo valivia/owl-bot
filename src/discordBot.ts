@@ -7,11 +7,12 @@ import fs from "fs";
 import discord from "discord.js";
 import "discord-reply";
 
-import { getCommands, runCommand } from "./middleware/commandhandler";
+import { runCommand } from "./middleware/commandhandler";
 import { getMember } from "./middleware/modules";
 import { PrismaClient } from ".prisma/client";
 import { initLog } from "./middleware/logHandler";
 import { OwlClient } from "./types/classes";
+import { getCommands } from "./middleware/commandRegister";
 
 export default function discordBot(db: PrismaClient): OwlClient {
 
