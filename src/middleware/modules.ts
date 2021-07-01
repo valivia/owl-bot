@@ -39,8 +39,8 @@ export async function getRole(client: OwlClient, guildID: string, roleID: string
 }
 
 export function getCommand(client: OwlClient, name: string): Command | undefined {
-    const command = client.commands.get(name) as Command;
-    const cmdAlias = client.commands.find((cmd: { aliases: string | string[]; }) => cmd.aliases && cmd.aliases.includes(name)) as Command;
+    const command = client.commands.get(name);
+    const cmdAlias = client.commands.find((cmd: Command) => cmd.aliases?.includes(name));
 
     return cmdAlias !== undefined ? cmdAlias : (command !== undefined ? command : undefined);
 }

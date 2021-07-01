@@ -28,8 +28,8 @@ export type Argument = {
 }
 
 export type Permissions = {
-    self: PermissionResolvable[] | null;
-    user: PermissionResolvable[] | null;
+    self?: PermissionResolvable[];
+    user?: PermissionResolvable[];
 }
 
 export type Throttling = {

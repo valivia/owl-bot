@@ -3,10 +3,5 @@
       "owner": "",
       "everyone": false,
       "prefix": "]"
-  },
-  "rcon": {
-      "pass": "",
-      "host": "",
-      "port": ""
   }
 }

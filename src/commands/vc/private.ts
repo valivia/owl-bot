@@ -23,22 +23,9 @@ module.exports = class extends Command {
         });
     }
 
-    async run(author: GuildMember, _: undefined, { db }: OwlClient): Promise<MsgResponse> {
+    async run(_author: GuildMember): Promise<MsgResponse> {
         try {
-            // Make vc private/open
-            const result = await db.voiceChannels.updateMany({
-                where: { AND: [{ GuildID: author.guild.id }, { UserID: author.id }] },
-                data: { Open: false },
-            }).catch(() => {
-                return false;
-            });
-
-            if (typeof (result) === "boolean") {
-                return { type: "text", content: "You dont have a private room." };
-            }
-
-            // Notify user.
-            return { type: "text", content: `Your voicechannel is now ${result.Open == 1 ? "closed" : "open"}.` };
+            return defaultErr;
         } catch (e) {
             console.log(e);
             return defaultErr;

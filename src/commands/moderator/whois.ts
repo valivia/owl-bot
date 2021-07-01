@@ -1,5 +1,5 @@
 import { GuildMember } from "discord.js";
-import { accountExists, defaultErr } from "../../middleware/modules";
+import { getMcUUID, defaultErr } from "../../middleware/modules";
 import { Command, OwlClient } from "../../types/classes";
 import { argType, MsgResponse } from "../../types/types";
 
@@ -38,7 +38,7 @@ module.exports = class extends Command {
             username = username.substr(0, 64);
 
             // Check if account exists.
-            const id = await accountExists(username);
+            const id = await getMcUUID(username);
 
             // Check if should continue.
             if (!id) return { type: "text", content: "mc account doesn't exist" };

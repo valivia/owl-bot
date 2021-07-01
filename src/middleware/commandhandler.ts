@@ -9,6 +9,18 @@ import { MsgResponse } from "../types/types";
 import { defaultErr, getChannel, getCommand, getMember, getRole } from "./modules";
 const options = settings.Options;
 
+
+function argTypeValidator(command: Command) {
+    if (!command.args) return;
+    for (const arg of command.args) {
+        const num = arg.type;
+        if (num > 8 || num < 3 || !Number.isFinite(num)) {
+            console.log(`${num} is an invalid arg type at ${command.name}`.red.bold);
+            process.exit();
+        }
+    }
+}
+
 export async function getCommands(client: OwlClient): Promise<void> {
     client.commands = new Collection();
     const db = client.db;
@@ -21,29 +33,15 @@ export async function getCommands(client: OwlClient): Promise<void> {
 
             if (command == undefined) { continue; }
 
-            const cmd = getCommand(client, command.name);
-
-            // throw err.
-            if (cmd !== undefined) {
+            if (getCommand(client, command.name) !== undefined) {
                 console.log(`duplicate commands with name: ${command.name}`.red.bold);
                 process.exit();
             }
 
-            // loop through arguments.
-            for (const type in command.args) {
-                const num = command.args[type].type;
-                if (num > 8 || num < 3 || !Number.isFinite(num)) {
-                    console.log(`${command.args[type].type} is an invalid arg type at ${command.name}`.red.bold);
-                    process.exit();
-                }
-            }
+            argTypeValidator(command);
 
             // Get command from db.
-            const query = await db.commands.findUnique({
-                where: {
-                    Name: command.name,
-                },
-            });
+            const query = await db.commands.findUnique({ where: { Name: command.name } });
 
             // Add to slash commands.
             if (query === null && command.slash) {
@@ -114,8 +112,9 @@ function hasPerms(required: PermissionResolvable[], member: GuildMember): boolea
 }
 
 async function argumenthanlder(command: Command, args: string[], client: OwlClient, guild: Guild | undefined): Promise<any> {
-    const commandArgs = {};
-    for (const index in command.args) {
+    const commandArgs: Record<string, unknown> = {};
+    if (command.args === undefined) return null;
+    for (let index = 0; index < command.args?.length; index++) {
         let value;
         const arg = command.args[index];
         let input = args[index];

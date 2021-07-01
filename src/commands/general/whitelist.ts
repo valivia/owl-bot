@@ -35,7 +35,6 @@ module.exports = class extends Command {
 
             permissions: {
                 self: ["MANAGE_ROLES"],
-                user: null,
             },
         });
     }
@@ -59,7 +58,7 @@ module.exports = class extends Command {
             uuid = uuid as string;
 
             // Check if already registered.
-            const userExists = await db.whitelist.findFirst({ where: { OR: [{ UserID: userID }, { UUID: uuid as string }] } });
+            const userExists = await db.whitelist.findFirst({ where: { OR: [{ UserID: userID }, { UUID: uuid }] } });
 
             // Check if already in db.
             if (userExists !== null) return { type: "text", content: "You already have an account linked." };
