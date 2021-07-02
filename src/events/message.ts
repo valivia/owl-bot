@@ -1,6 +1,6 @@
 import { GuildMember, Message } from "discord.js";
 import settings from "../../settings.json";
-import { runCommand } from "../middleware/commandhandler";
+import { runCommand } from "../middleware/commandHandler";
 import { OwlClient } from "../types/classes";
 
 const options = settings.Options;
@@ -11,10 +11,10 @@ export default function message(client: OwlClient) {
         try {
             const ping = Date.now();
             // Check if valid channel.
-            if (msg.guild === null && msg.channel === null) { return; }
+            if (msg.guild === null && msg.channel === null) return;
 
             // Check if user is not a bot.
-            if (msg.author.bot) { return; }
+            if (msg.author.bot) return;
 
             // Check if bot is called with prefix or tag.
             if (!msg.content.startsWith(options.prefix, 0) &&
@@ -60,9 +60,7 @@ export default function message(client: OwlClient) {
             // yeet through command handler.
             const response = await runCommand(user, commandName, args, client, msg);
 
-            if (response.type === "disabled") {
-                return;
-            }
+            if (response.type === "disabled") return;
 
             console.log(`pre send ping: ${Date.now() - ping}`);
             await msg.lineReplyNoMention(response.content);
