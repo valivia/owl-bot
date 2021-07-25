@@ -11,7 +11,7 @@ export default function guildCreate(client: OwlClient) {
     return async (guild: Guild) => {
         try {
 
-            await db.settings.create({ data: { GuildID: guild.id } });
+            await db.guilds.create({ data: { GuildID: guild.id } });
 
             logHandler(Logs_Event.Guild_Add, guild.id);
 

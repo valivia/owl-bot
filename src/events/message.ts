@@ -9,7 +9,6 @@ export default function message(client: OwlClient) {
 
     return async (msg: Message): Promise<void> => {
         try {
-            const ping = Date.now();
             // Check if valid channel.
             if (msg.guild === null && msg.channel === null) return;
 
@@ -35,6 +34,10 @@ export default function message(client: OwlClient) {
             } else if (content.slice(0, 22) === `<@!${client.user?.id}>` || content.slice(0, 22) === `<@&${client.user?.id}>`) {
                 // Cut off the ping.
                 content = content.slice(22);
+                if (content.length === 0) {
+                    msg.channel.send(`Prefix is ${options.prefix}`);
+                    return;
+                }
             }
             // Trim string.
             content = content.trim();
@@ -62,9 +65,7 @@ export default function message(client: OwlClient) {
 
             if (response.type === "disabled") return;
 
-            console.log(`pre send ping: ${Date.now() - ping}`);
             await msg.lineReplyNoMention(response.content);
-            console.log(`post send ping: ${Date.now() - ping}`);
 
         } catch (error) {
             console.error(error);

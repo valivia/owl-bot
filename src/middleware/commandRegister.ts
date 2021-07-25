@@ -37,6 +37,7 @@ export async function getCommands(client: OwlClient): Promise<void> {
             const query = await db.commands.findUnique({ where: { Name: command.name } });
 
             // Add to slash commands.
+            /*
             if (query === null && command.slash) {
                 client.api.applications(client.user?.id).commands.post({
                     data: {
@@ -46,7 +47,7 @@ export async function getCommands(client: OwlClient): Promise<void> {
                     },
                 });
                 console.log(`${command.name} has been added as slash command.`);
-            }
+            }*/
 
             // Insert command into db if not there yet.
             if (query === null) {

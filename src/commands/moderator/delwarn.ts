@@ -3,7 +3,7 @@ import { defaultErr } from "../../middleware/modules";
 import { Command, OwlClient } from "../../types/classes";
 import { argType, MsgResponse } from "../../types/types";
 
-module.exports = class extends Command {
+export default class extends Command {
     constructor(client: OwlClient) {
         super(client, {
             name: "delwarn",
@@ -69,4 +69,4 @@ module.exports = class extends Command {
             return defaultErr;
         }
     }
-};
+}

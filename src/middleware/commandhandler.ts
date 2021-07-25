@@ -34,6 +34,8 @@ export async function runCommand(user: GuildMember | User | null, commandName: s
 
     const commandArgs = await argumenthanlder(command, args, client, guild);
 
+    if (commandArgs.type !== undefined) return commandArgs as MsgResponse;
+
     return await command.run(user, commandArgs, client, msg);
 }
 
@@ -68,8 +70,14 @@ async function argumenthanlder(command: Command, args: string[], client: OwlClie
             }
             case 5: break;
             case 6: {
-                if (guild === undefined) value = await client.users.fetch(input);
-                else value = await getMember(client, guild.id, input);
+                if (!(/[\d]/.test(input) && input.length == 18) && arg.required) {
+                    console.log("bruh");
+                    return { type: "content", content: "Couldnt find that user" };
+                }
+                if (guild === undefined) {
+                    value = await client.users.fetch(input);
+                    break;
+                } else value = await getMember(client, guild.id, input);
                 break;
             }
             case 7: {

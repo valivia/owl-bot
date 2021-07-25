@@ -47,7 +47,7 @@ module.exports = class extends Command {
 
             client.commands.set(command.name, command);
 
-            console.log(` > ${command.disabled ? "disabled" : "enabled"}: `.magenta + command.name.green);
+            console.log(` > ${command.disabled ? "disabled" : "enabled"}: `.magenta + `${command.disabled ? command.name.green : command.name.red}`);
             return { type: "text", content: `command has been ${command.disabled ? "disabled" : "enabled"}.` };
         } catch (e) {
             console.log(e);

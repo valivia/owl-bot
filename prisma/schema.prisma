@@ -7,91 +7,83 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Commands {
-  Name     String  @unique @db.VarChar(16)
-  Disabled Boolean @default(false)
-  Info     String  @db.LongText
-  id       Int     @id @default(autoincrement())
-}
-
-model VCMembers {
-  UserID        String        @db.VarChar(18)
-  ChannelID     String        @db.VarChar(18)
-  Created       DateTime      @default(now()) @db.Timestamp(0)
-  VoiceChannels VoiceChannels @relation(fields: [ChannelID], references: [ChannelID])
-
-  @@id([ChannelID, UserID])
-}
-
-model VoiceChannels {
-  UserID     String?     @unique @db.VarChar(18)
-  ChannelID  String      @id @db.VarChar(18)
-  LastUpdate DateTime?   @default(now()) @db.Timestamp(0)
-  Open       Boolean     @default(true)
-  GuildID    String      @db.VarChar(18)
-  Settings   Settings    @relation(fields: [GuildID], references: [GuildID])
-  VCMembers  VCMembers[]
-
-  @@index([GuildID], name: "VoiceChannels_FK")
-}
-
-model Warnings {
-  UserID   String   @db.VarChar(18)
-  Reason   String?  @db.Text
-  Created  DateTime @default(now()) @db.Timestamp(0)
-  GuildID  String   @db.VarChar(18)
-  ModID    String   @db.VarChar(18)
-  ID       Int      @id @default(autoincrement())
-  Settings Settings @relation(fields: [GuildID], references: [GuildID])
-
-  @@index([GuildID], name: "Warnings_FK")
-}
-
-model Whitelist {
-  UserID   String   @db.VarChar(18)
-  UUID     String   @db.VarChar(32)
-  Created  DateTime @default(now()) @db.Timestamp(0)
-  Expired  Boolean  @default(false)
-  GuildID  String   @db.VarChar(18)
-  Settings Settings @relation(fields: [GuildID], references: [GuildID])
-
-  @@unique([UUID, GuildID], name: "Whitelist_UN")
-  @@unique([UserID, GuildID], name: "Whitelist_UN2")
-  @@index([GuildID], name: "Whitelist_FK")
-}
-
-model Settings {
+model Guilds {
   GuildID       String          @id @db.VarChar(18)
   Created       DateTime        @default(now()) @db.Timestamp(0)
-  LogChannel    String?         @db.VarChar(18)
+  ChannelID     String?         @db.VarChar(18)
   Logs          Logs[]
-  RCON          RCON?
   VoiceChannels VoiceChannels[]
   Warnings      Warnings[]
   Whitelist     Whitelist[]
 }
 
+model VoiceChannels {
+  ChannelID  String   @id @db.VarChar(18)
+  Created    DateTime @default(now()) @db.Timestamp(0)
+  LastUpdate DateTime @default(now()) @db.Timestamp(0)
+  UserID     String?  @db.VarChar(18)
+  Mode       Boolean  @default(true)
+  Visible    Boolean  @default(true)
+  GuildID    String   @db.VarChar(18)
+  Guilds     Guilds   @relation(fields: [GuildID], references: [GuildID])
+
+  @@index([GuildID], name: "VoiceChannels_FK")
+}
+
+model Warnings {
+  ID      Int      @id @default(autoincrement())
+  GuildID String   @db.VarChar(18)
+  UserID  String   @db.VarChar(18)
+  ModID   String   @db.VarChar(18)
+  Created DateTime @default(now()) @db.Timestamp(0)
+  Reason  String   @db.VarChar(256)
+  Guilds  Guilds   @relation(fields: [GuildID], references: [GuildID])
+
+  @@index([GuildID], name: "Warnings_FK")
+}
+
+model Commands {
+  ID       Int     @id @default(autoincrement())
+  Name     String  @unique @db.VarChar(18)
+  Disabled Boolean @default(false)
+  Info     String? @db.LongText
+}
+
 model Logs {
-  ID       Int        @id @default(autoincrement())
-  Created  DateTime   @default(now()) @db.Timestamp(0)
-  UserID   String?    @db.VarChar(18)
-  GuildID  String     @db.VarChar(18)
-  ModID    String?    @db.VarChar(18)
-  Event    Logs_Event
-  Content  String?    @db.VarChar(256)
-  Settings Settings   @relation(fields: [GuildID], references: [GuildID])
+  ID      Int        @id @default(autoincrement())
+  Created DateTime   @default(now()) @db.Timestamp(0)
+  GuildID String     @db.VarChar(18)
+  UserID  String?    @db.VarChar(18)
+  ModID   String?    @db.VarChar(18)
+  Event   Logs_Event
+  Content String?    @db.VarChar(256)
+  Guilds  Guilds     @relation(fields: [GuildID], references: [GuildID])
 
   @@index([GuildID], name: "Logs_FK")
 }
 
 model RCON {
-  ID       Int      @id @default(autoincrement())
-  GuildID  String   @unique @db.VarChar(18)
-  Host     String   @db.VarChar(32)
-  Port     Int
-  Password String   @db.VarChar(100)
-  RoleID   String?  @db.VarChar(18)
-  Settings Settings @relation(fields: [GuildID], references: [GuildID])
+  ID        Int         @id @default(autoincrement())
+  GuildID   String      @unique @db.VarChar(18)
+  Host      String      @db.VarChar(32)
+  Port      Int
+  Password  String      @db.VarChar(64)
+  RoleID    String?     @db.VarChar(18)
+  Whitelist Whitelist[]
+}
+
+model Whitelist {
+  GuildID String   @db.VarChar(18)
+  Created DateTime @default(now()) @db.Timestamp(0)
+  Expired Boolean  @default(false)
+  UUID    String   @db.VarChar(32)
+  UserID  String   @db.VarChar(18)
+  ID      Int      @id @default(autoincrement())
+  RCON    RCON     @relation(fields: [GuildID], references: [GuildID])
+  Guilds  Guilds   @relation(fields: [GuildID], references: [GuildID])
+
+  @@unique([GuildID, UserID], name: "WhitelistID_UN")
+  @@unique([GuildID, UUID], name: "WhitelistUUID_UN")
 }
 
 enum Logs_Event {
