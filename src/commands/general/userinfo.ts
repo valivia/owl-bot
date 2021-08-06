@@ -1,5 +1,5 @@
 import { GuildMember, MessageEmbed } from "discord.js";
-import { defaultErr } from "../../middleware/modules";
+import { defaultErr } from "../../modules/modules";
 import { Command, OwlClient } from "../../types/classes";
 import { argType, MsgResponse } from "../../types/types";
 
@@ -47,13 +47,13 @@ module.exports = class extends Command {
             const embed = new MessageEmbed()
                 .setTitle(`Info on **${user.username}#${user.discriminator}** (ID: ${user.id})`)
                 .setThumbnail(member.user.avatarURL() as string)
-                .setDescription([`User stats of *${user.username}*`])
+                .setDescription(`User stats of *${user.username}*`)
                 .addField(`**Member Details**`,
                     (member.nickname !== null ? `• **Nickname:** ${member.nickname}` : "• **No nickname**") + `\n• **Roles:** ${member.roles.cache.map(roles => `\`${roles.name}\``).join(", ")}\n• **Joined at:** ${member.joinedAt}`)
                 .addField("**User Details**",
                     `• **Created at:** ${user.createdAt}` + (user.bot ? "\n• **Is a bot account**" : ""));
 
-            return { type: "embed", content: embed };
+            return { embeds: [embed] };
         } catch (e) {
             console.log(e);
             return defaultErr;

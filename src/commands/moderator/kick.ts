@@ -51,7 +51,7 @@ module.exports = class extends Command {
         try {
             const result = await member.kick(reason).catch(() => { return false; });
 
-            if (typeof (result) == "boolean") return { type: "text", content: "Can't kick that person" };
+            if (typeof (result) == "boolean") return { content: "Can't kick that person" };
 
             const embed = new MessageEmbed()
                 .setAuthor(`${member.user.username}#${member.user.discriminator} has been kicked`)
@@ -60,10 +60,10 @@ module.exports = class extends Command {
 
             logHandler(Logs_Event.Kick, author.guild.id, member.user, reason, author.user);
 
-            return { type: "embed", content: embed };
+            return { embeds: [embed] };
         } catch (e) {
             console.log(e);
-            return { type: "text", content: "an error occured" };
+            return { content: "an error occured" };
         }
     }
 };

@@ -1,5 +1,5 @@
 import { GuildMember, MessageEmbed } from "discord.js";
-import { defaultErr } from "../../middleware/modules";
+import { defaultErr } from "../../modules/modules";
 import { Command, OwlClient } from "../../types/classes";
 import { argType, MsgResponse } from "../../types/types";
 
@@ -42,7 +42,7 @@ export default class extends Command {
 
     async run(_author: GuildMember, { member, number }: { member: GuildMember, number: number }, client: OwlClient): Promise<MsgResponse> {
         const db = client.db;
-        if (number < 1) { return { type: "content", content: "Invalid index" }; }
+        if (number < 1) { return { content: "Invalid index" }; }
 
         try {
             const query = await db.warnings.findFirst({
@@ -54,7 +54,7 @@ export default class extends Command {
                 skip: number - 1,
             });
 
-            if (query === null) return { type: "content", content: "Out of bounds." };
+            if (query === null) return { content: "Out of bounds." };
 
             await db.warnings.delete({ where: { ID: query.ID } });
 
@@ -62,7 +62,7 @@ export default class extends Command {
                 .setAuthor(`${member.user.username}#${member.user.discriminator}'s ${number}${number > 1 ? "nd" : "st"} warning was removed`)
                 .setColor(5362138);
 
-            return { type: "embed", content: embed };
+            return { embeds: [embed] };
         } catch (e) {
             console.error(e);
 

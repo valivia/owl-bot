@@ -1,7 +1,7 @@
 import { GuildMember, ImageURLOptions, MessageEmbed } from "discord.js";
 import { Command, OwlClient } from "../../types/classes";
 import { argType, MsgResponse } from "../../types/types";
-import { defaultErr } from "../../middleware/modules";
+import { defaultErr } from "../../modules/modules";
 
 module.exports = class extends Command {
     constructor(client: OwlClient) {
@@ -44,7 +44,7 @@ module.exports = class extends Command {
                 .setFooter(`${author.user.username} <@${author.id}>`, author.user.displayAvatarURL())
                 .setTimestamp();
 
-            return { type: "embed", content: embed };
+            return { embeds: [embed] };
         } catch (e) {
             console.log(e);
             return defaultErr;

@@ -1,4 +1,4 @@
-import { GuildChannel, GuildMember, Role } from "discord.js";
+import { GuildChannel, GuildMember, Role, ThreadChannel } from "discord.js";
 import axios from "axios";
 import { Rcon } from "rcon-client/lib";
 import { RCONLogin } from "../types/types";
@@ -16,7 +16,7 @@ export async function getMember(client: OwlClient, guildID: string, userID: stri
     return member;
 }
 
-export async function getChannel(client: OwlClient, guildID: string, channelID: string): Promise<GuildChannel | null> {
+export async function getChannel(client: OwlClient, guildID: string, channelID: string): Promise<GuildChannel | ThreadChannel | null> {
     const guild = await client.guilds.fetch(guildID);
     if (guild === null) { return null; }
 

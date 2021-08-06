@@ -1,5 +1,5 @@
 import search, { YouTubeSearchOptions, YouTubeSearchResults } from "youtube-search";
-import { defaultErr } from "../../middleware/modules";
+import { defaultErr } from "../../modules/modules";
 import ytdl from "ytdl-core";
 import dotenv from "dotenv";
 import { GuildMember, VoiceConnection, MessageEmbed, Util } from "discord.js";

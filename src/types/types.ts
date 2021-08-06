@@ -1,4 +1,4 @@
-import { PermissionResolvable, MessageEmbed } from "discord.js";
+import { PermissionResolvable, MessageEmbed, MessageEmbedOptions } from "discord.js";
 
 export type CommandInfo = {
     name: string;
@@ -38,9 +38,10 @@ export type Throttling = {
 }
 
 export type MsgResponse = {
-    type: string;
-    content: string | MessageEmbed;
-    callback?: boolean;
+    disabled?: boolean;
+    ephemeral?: boolean;
+    content?: string;
+    embeds?: (MessageEmbed | MessageEmbedOptions)[]
 }
 
 export type Whitelist = {

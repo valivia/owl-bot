@@ -1,6 +1,5 @@
 import { GuildMember, User, MessageEmbed } from "discord.js";
-import { Options } from "../../../settings.json";
-import { getCommand } from "../../middleware/modules";
+import { getCommand } from "../../modules/modules";
 import { Command, OwlClient } from "../../types/classes";
 import { argType, MsgResponse } from "../../types/types";
 
@@ -58,26 +57,22 @@ module.exports = class extends Command {
                 .setColor("#FF0000")
                 .setTimestamp();
             // Send list directly if requested from dms.
-            if (dm) { return { type: "embed", content: list }; }
+            if (dm) { return { embeds: [list] }; }
 
             // Dm list.
-            await author.send(list)
-                .catch(_ => { return { type: "text", content: "Couldn't dm you." }; });
+            await author.send({ embeds: [list] })
+                .catch(_ => { return { content: "Couldn't dm you." }; });
             // Send acknowledgement.
-            return { type: "text", content: "Dm with info sent!" };
+            return { content: "Dm with info sent!" };
         }
 
         const cmdName = commandName?.toLowerCase();
         const command = getCommand(client, cmdName);
 
         if (!command) {
-            return { type: "text", content: "invalid command.." };
+            return { content: "invalid command.." };
         }
-
-        let alias;
-        if (command.aliases) {
-            alias = command.aliases.length < 1 ? command.aliases.join(", ") : "No Aliases available for this command.";
-        }
+        const alias = command.aliases.length < 1 ? command.aliases.join(", ") : "No Aliases available for this command.";
 
         const embed = new MessageEmbed()
             .setAuthor(author.username, `${author.avatarURL()}`)
@@ -85,10 +80,10 @@ module.exports = class extends Command {
             .addField("Description", command.description !== undefined ? command.description : "-")
             .addField("Aliases", alias, true)
             .addField("Example", command.example !== undefined ? `\`\`${Options.prefix}${command.name} ${command.example}\`\`` : "No example provided.", true)
-            .addField("cooldown", command.throttling !== undefined ? command.throttling.duration : "none")
+            .addField("cooldown", `${command.throttling !== undefined ? command.throttling.duration : "none"}`)
             .setColor("#FF0000")
             .setTimestamp();
 
-        return { type: "embed", content: embed };
+        return { embeds: [embed] };
     }
 };

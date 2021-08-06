@@ -2,6 +2,7 @@ import { Collection } from "discord.js";
 import { Command, OwlClient } from "../types/classes";
 import { getCommand } from "./modules";
 import fs from "fs";
+import path from "path";
 
 function argTypeValidator(command: Command) {
     if (!command.args) return;
@@ -14,12 +15,13 @@ function argTypeValidator(command: Command) {
     }
 }
 
-export async function getCommands(client: OwlClient): Promise<void> {
+export async function registerCommands(client: OwlClient): Promise<void> {
+    console.log(" > Loading commands".green.bold);
     client.commands = new Collection();
     const db = client.db;
-    const folders = fs.readdirSync("./src/commands/");
+    const folders = fs.readdirSync(path.join(__dirname, "../commands"));
     for (const folder of folders) {
-        const commandFiles = fs.readdirSync(`./src/commands/${folder}`).filter(file => file.endsWith(".js"));
+        const commandFiles = fs.readdirSync(path.join(__dirname, `../commands/${folder}`)).filter(file => file.endsWith(".js"));
         for (const file of commandFiles) {
             const cmdClass = (await import(`../commands/${folder}/${file}`)).default;
             const command = new cmdClass() as Command;
@@ -65,7 +67,8 @@ export async function getCommands(client: OwlClient): Promise<void> {
             // Add command to client.
             client.commands.set(command.name, command);
             // Log.
-            console.log(" > Command added: ".magenta + `${command.disabled ? command.name.red : command.name.green}`);
+            console.log(`${" - Loaded Command:".cyan.italic} ${command.disabled ? command.name.red.italic : command.name.green.italic}`);
         }
     }
+    console.log(" ✓ All commands loaded".green.bold);
 }

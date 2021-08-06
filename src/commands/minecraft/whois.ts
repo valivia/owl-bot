@@ -1,5 +1,5 @@
 import { GuildMember } from "discord.js";
-import { getMcUUID, defaultErr } from "../../middleware/modules";
+import { getMcUUID, defaultErr } from "../../modules/modules";
 import { Command, OwlClient } from "../../types/classes";
 import { argType, MsgResponse } from "../../types/types";
 
@@ -41,18 +41,18 @@ module.exports = class extends Command {
             const id = await getMcUUID(username);
 
             // Check if should continue.
-            if (!id) return { type: "text", content: "mc account doesn't exist" };
+            if (!id) return { content: "mc account doesn't exist" };
 
             // get username
             const query = await client.db.whitelist.findFirst({ where: { UUID: id as string } });
 
-            if (query === null) return { type: "text", content: "No account linked.." };
+            if (query === null) return { content: "No account linked.." };
 
             const user = await client.users.fetch(query.UserID);
 
-            if (user === null) return { type: "text", content: "couldnt find user." };
+            if (user === null) return { content: "couldnt find user." };
             // Respond.
-            return { type: "text", content: `${user.tag} - ${user.id}` };
+            return { content: `${user.tag} - ${user.id}` };
         } catch (e) {
             console.log(e);
             // If cant connect to mc server.

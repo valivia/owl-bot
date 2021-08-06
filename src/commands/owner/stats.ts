@@ -43,6 +43,6 @@ module.exports = class extends Command {
             .setColor("#FF0000")
             .setTimestamp();
 
-        return { type: "embed", content: embed };
+        return { embeds: [embed] };
     }
 };

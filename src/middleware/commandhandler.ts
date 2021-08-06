@@ -2,30 +2,30 @@ import colors from "colors";
 colors.enable();
 
 import { Guild, GuildMember, Message, PermissionResolvable, User } from "discord.js";
-import settings from "../../settings.json";
 import { Command, OwlClient } from "../types/classes";
 import { Argument, MsgResponse } from "../types/types";
-import { defaultErr, getChannel, getCommand, getMember, getRole } from "./modules";
-const options = settings.Options;
+import { defaultErr, getChannel, getCommand, getMember, getRole } from "../modules/modules";
+import "dotenv";
+const env = process.env;
 
 
 export async function runCommand(user: GuildMember | User | null, commandName: string, args: string[], client: OwlClient, msg?: Message): Promise<MsgResponse> {
     const command = getCommand(client, commandName);
     if (user === null) { return defaultErr; }
-    if (command === undefined) { return { type: "disabled", content: "command doesnt exist" }; }
-    if (command.guildOnly && !("user" in user)) { return { type: "content", content: "This command is limited to servers." }; }
+    if (command === undefined) { return { disabled: true, content: "command doesnt exist" }; }
+    if (command.guildOnly && !("user" in user)) { return { content: "This command is limited to servers." }; }
     const guild = "user" in user ? user.guild : undefined;
-    if (command.adminOnly && user.id !== options.owner) return { type: "disabled", content: "This command is only available for admins" };
-    if (command.disabled && user.id !== options.owner) return { type: "content", content: "This command is currently disabled." };
+    if (command.adminOnly && user.id !== env.owner) return { disabled: true, content: "This command is only available for admins" };
+    if (command.disabled && user.id !== env.owner) return { content: "This command is currently disabled." };
 
     if (command.permissions !== undefined && guild) {
         user = user as GuildMember;
         if (command.permissions.user && !hasPerms(command.permissions.user, user)) {
-            return { type: "disabled", content: "You dont have the permissions to do that." };
+            return { disabled: true, content: "You dont have the permissions to do that." };
         }
         if (!user.guild.me) return defaultErr;
         if (command.permissions.self && !hasPerms(command.permissions.self, user.guild.me)) {
-            return { type: "content", content: "The bot doesnt have the right permissions for this." };
+            return { content: "The bot doesnt have the right permissions for this." };
         }
     }
 
@@ -41,7 +41,7 @@ export async function runCommand(user: GuildMember | User | null, commandName: s
 
 function hasPerms(required: PermissionResolvable[], member: GuildMember): boolean {
     for (const perm of required) {
-        if (!member.hasPermission(perm)) return false;
+        if (!member.permissions.has(perm)) return false;
     }
     return true;
 }

@@ -1,5 +1,5 @@
 import { GuildMember } from "discord.js";
-import { defaultErr, getCommand } from "../../middleware/modules";
+import { defaultErr, getCommand } from "../../modules/modules";
 import { Command, OwlClient } from "../../types/classes";
 import { argType, MsgResponse } from "../../types/types";
 
@@ -39,7 +39,7 @@ module.exports = class extends Command {
         try {
             const command = getCommand(client, commandName);
 
-            if (command === undefined) return { type: "text", content: "This command doesnt exist." };
+            if (command === undefined) return { content: "This command doesnt exist." };
 
             await db.commands.update({ data: { Disabled: (command.disabled ? false : true) }, where: { Name: commandName } });
 
@@ -48,7 +48,7 @@ module.exports = class extends Command {
             client.commands.set(command.name, command);
 
             console.log(` > ${command.disabled ? "disabled" : "enabled"}: `.magenta + `${command.disabled ? command.name.green : command.name.red}`);
-            return { type: "text", content: `command has been ${command.disabled ? "disabled" : "enabled"}.` };
+            return { content: `command has been ${command.disabled ? "disabled" : "enabled"}.` };
         } catch (e) {
             console.log(e);
             return defaultErr;

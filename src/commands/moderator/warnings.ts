@@ -61,10 +61,10 @@ module.exports = class extends Command {
             warns.length !== 0 ? embed.addFields(warns) : embed.setDescription("This user has no warnings.");
 
             // Send embed.
-            return { type: "embed", content: embed };
+            return { embeds: [embed] };
         } catch (e) {
             console.log(e);
-            return { type: "text", content: "an error occured" };
+            return { content: "an error occured" };
         }
     }
 };

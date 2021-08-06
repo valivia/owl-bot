@@ -1,4 +1,4 @@
-import { getMcUUID, defaultErr, RCONHandler } from "../../middleware/modules";
+import { getMcUUID, defaultErr, RCONHandler } from "../../modules/modules";
 import logHandler from "../../middleware/logHandler";
 import { Logs_Event } from "@prisma/client";
 import { GuildMember } from "discord.js";
@@ -48,26 +48,26 @@ module.exports = class extends Command {
             const rconGuild = await db.rCON.findFirst({ where: { GuildID: author.guild.id } });
 
             // Check if connected server.
-            if (rconGuild === null) return { type: "text", content: "No minecraft server connected to this guild." };
+            if (rconGuild === null) return { content: "No minecraft server connected to this guild." };
 
             // Get UUID
             let uuid = await getMcUUID(username);
 
             // Check if exists.
-            if (!uuid) return { type: "text", content: "mc account doesn't exist" };
+            if (!uuid) return { content: "mc account doesn't exist" };
             uuid = uuid as string;
 
             // Check if already registered.
             const userExists = await db.whitelist.findFirst({ where: { OR: [{ UserID: userID }, { UUID: uuid }] } });
 
             // Check if already in db.
-            if (userExists !== null) return { type: "text", content: "You already have an account linked." };
+            if (userExists !== null) return { content: "You already have an account linked." };
 
             // Execute command.
             const response = await RCONHandler(`whitelist add ${username}`, { host: rconGuild.Host, port: rconGuild.Port, password: rconGuild.Password });
 
             // If already whitelisted.
-            if (response.code !== "SUCCESS") return { type: "text", content: response.message };
+            if (response.code !== "SUCCESS") return { content: response.message };
 
             // Add to db.
             await db.whitelist.create({ data: { UserID: userID, UUID: uuid, GuildID: author.guild.id } });
@@ -79,7 +79,7 @@ module.exports = class extends Command {
             logHandler(Logs_Event.Whitelist_Add, author.guild.id, author.user, uuid);
 
             // Respond.
-            return { type: "text", content: "You've been whitelisted!" };
+            return { content: "You've been whitelisted!" };
         } catch (e) {
             console.log(e);
             return defaultErr;

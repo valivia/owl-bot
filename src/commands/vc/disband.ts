@@ -1,7 +1,7 @@
 import { Logs_Event } from "@prisma/client";
 import { GuildMember, VoiceChannel, Message } from "discord.js";
 import logHandler from "../../middleware/logHandler";
-import { defaultErr } from "../../middleware/modules";
+import { defaultErr } from "../../modules/modules";
 import { Command, OwlClient } from "../../types/classes";
 
 module.exports = class extends Command {

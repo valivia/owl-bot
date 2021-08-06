@@ -1,7 +1,7 @@
 import { Logs_Event } from "@prisma/client";
 import { GuildMember, MessageEmbed } from "discord.js";
 import logHandler from "../../middleware/logHandler";
-import { defaultErr } from "../../middleware/modules";
+import { defaultErr } from "../../modules/modules";
 import { Command, OwlClient } from "../../types/classes";
 import { argType, MsgResponse } from "../../types/types";
 
@@ -49,7 +49,7 @@ module.exports = class extends Command {
             await db.warnings.create({ data: { UserID: member.id, Reason: reason.substr(0, 256), GuildID: member.guild?.id, ModID: author.id } })
                 .catch(e => {
                     console.log(e);
-                    return { type: "text", content: "an error occured" };
+                    return { content: "an error occured" };
                 });
 
             const warnCount = await db.warnings.count({ where: { UserID: member.id, GuildID: member.guild.id } });
@@ -71,7 +71,7 @@ module.exports = class extends Command {
             logHandler(Logs_Event.Warn_Add, author.guild.id, member.user, reason, author.user);
 
             // send embed.
-            return { type: "embed", content: embed };
+            return { embeds: [embed] };
         } catch (e) {
             console.log(e);
             return defaultErr;

@@ -1,11 +1,14 @@
 import { GuildMember, Message } from "discord.js";
-import settings from "../../settings.json";
 import { runCommand } from "../middleware/commandHandler";
 import { OwlClient } from "../types/classes";
 
-const options = settings.Options;
+import dotenv from "dotenv";
+dotenv.config();
 
-export default function message(client: OwlClient) {
+const prefix = process.env.PREFIX as string;
+
+
+export default function messageCreate(client: OwlClient) {
 
     return async (msg: Message): Promise<void> => {
         try {
@@ -16,10 +19,10 @@ export default function message(client: OwlClient) {
             if (msg.author.bot) return;
 
             // Check if bot is called with prefix or tag.
-            if (!msg.content.startsWith(options.prefix, 0) &&
+            if (!msg.content.startsWith(prefix, 0) &&
                 !msg.content.startsWith(`<@!${client.user?.id}>`) &&
                 !msg.content.startsWith(`<@&${client.user?.id}>`) &&
-                msg.channel.type !== "dm") { return; }
+                msg.channel.type !== "DM") { return; }
 
             const user = msg.member == undefined ? msg.author : msg.member as GuildMember;
 
@@ -28,14 +31,14 @@ export default function message(client: OwlClient) {
 
             let content = msg.content;
             // Check which way the bot got called.
-            if (content.startsWith(options.prefix)) {
+            if (content.startsWith(prefix)) {
                 // Cut off the prefix.
-                content = content.slice(options.prefix.length);
+                content = content.slice(prefix.length);
             } else if (content.slice(0, 22) === `<@!${client.user?.id}>` || content.slice(0, 22) === `<@&${client.user?.id}>`) {
                 // Cut off the ping.
                 content = content.slice(22);
                 if (content.length === 0) {
-                    msg.channel.send(`Prefix is ${options.prefix}`);
+                    msg.channel.send(`Prefix is ${prefix}`);
                     return;
                 }
             }
@@ -62,10 +65,10 @@ export default function message(client: OwlClient) {
 
             // yeet through command handler.
             const response = await runCommand(user, commandName, args, client, msg);
+            console.log(response);
+            if (response.disabled) return;
 
-            if (response.type === "disabled") return;
-
-            await msg.lineReplyNoMention(response.content);
+            await msg.reply({ embeds: response.embeds, content: response.content });
 
         } catch (error) {
             console.error(error);

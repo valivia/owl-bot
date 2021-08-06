@@ -6,7 +6,7 @@ colors.enable();
 
 export let client: OwlClient;
 
-export default async function logHandler(type: Logs_Event, guild: string, user?: User, content?: string, mod?: User | undefined): Promise<void> {
+export default async function logHandler(type: Logs_Event, guild: string, user?: User, content = "-", mod?: User | undefined): Promise<void> {
 
     if (user === undefined) { user = client.user as User; }
 

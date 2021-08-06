@@ -1,5 +1,5 @@
 import { GuildMember } from "discord.js";
-import { defaultErr } from "../../middleware/modules";
+import { defaultErr } from "../../modules/modules";
 import { Command, OwlClient } from "../../types/classes";
 import { MsgResponse } from "../../types/types";
 

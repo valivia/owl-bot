@@ -5,13 +5,13 @@ import { MsgResponse } from "../../types/types";
 module.exports = class extends Command {
     constructor(client: OwlClient) {
         super(client, {
-            name: "removeguild",
+            name: "guilds",
             aliases: [""],
-            description: "Leave guild.",
+            description: "show guilds.",
             example: "",
             group: "owner",
 
-            guildOnly: true,
+            guildOnly: false,
             adminOnly: true,
             slash: false,
 
@@ -22,9 +22,9 @@ module.exports = class extends Command {
         });
     }
 
-    async run(author: GuildMember, _undefined: undefined, _client: OwlClient): Promise<MsgResponse> {
-        author.guild.leave();
+    async run(_author: GuildMember, _undefined: undefined, client: OwlClient): Promise<MsgResponse> {
+        const result = await client.guilds.cache.map((guild) => `${guild.name} - ${guild.id} - ${guild.ownerId}`).join("\n");
 
-        return { disabled: true };
+        return { content: result };
     }
 };
