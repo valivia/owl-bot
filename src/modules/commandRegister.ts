@@ -24,7 +24,7 @@ export async function registerCommands(client: OwlClient): Promise<void> {
         const commandFiles = fs.readdirSync(path.join(__dirname, `../commands/${folder}`)).filter(file => file.endsWith(".js"));
         for (const file of commandFiles) {
             const cmdClass = (await import(`../commands/${folder}/${file}`)).default;
-            const command = new cmdClass() as Command;
+            const command = new cmdClass(client) as Command;
 
             if (command == undefined) { continue; }
 

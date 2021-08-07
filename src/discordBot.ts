@@ -3,19 +3,21 @@ import dotenv from "dotenv";
 colors.enable();
 dotenv.config();
 
-import discord, { Intents } from "discord.js";
+import discord, { Intents, Snowflake } from "discord.js";
 import { PrismaClient } from ".prisma/client";
 import { OwlClient } from "./types/classes";
 import { registerCommands } from "./modules/commandRegister";
 import eventLoader from "./modules/eventLoader";
 import { initLog } from "./middleware/logHandler";
+import musicService from "./middleware/musicHandler";
 
 class DiscordBot {
     private db: PrismaClient;
     private client: OwlClient;
 
     constructor() {
-        this.client = new discord.Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] }) as OwlClient;
+        this.client = new discord.Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_VOICE_STATES] }) as OwlClient;
+        this.client.musicService = new Map<Snowflake, musicService>();
 
         this.initializeDB();
         this.initializeEvents();
@@ -33,7 +35,7 @@ class DiscordBot {
     }
 
     private initializeCommands() {
-        registerCommands(this.client).catch(() => { throw " x Couldnt load commands".red.bold; });
+        registerCommands(this.client).catch((e) => { throw ` x Couldnt load commands \n ${e}`.red.bold; });
     }
 
     public async listen(): Promise<void> {

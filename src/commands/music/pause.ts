@@ -1,3 +1,4 @@
+import { AudioPlayerStatus } from "@discordjs/voice";
 import { GuildMember } from "discord.js";
 import { defaultErr } from "../../modules/modules";
 import { Command, OwlClient } from "../../types/classes";
@@ -26,13 +27,14 @@ module.exports = class extends Command {
     async run(author: GuildMember): Promise<MsgResponse> {
         try {
             const vc = author.voice.channel;
-            const dispatcher = author.guild.voice?.connection?.dispatcher;
-            if (vc === null) return { type: "content", content: "Join a voicechannel first." };
-            if (!dispatcher) return { type: "content", content: "No music is playing." };
-            if (dispatcher.paused) dispatcher.resume();
-            else dispatcher.pause();
+            if (vc === null) return { content: "Join a voicechannel first." };
+            const subscription = this.client.musicService.get(author.guild.id);
+            if (!subscription) return { content: "Play a song first!" };
+            const paused = subscription.player.state.status === AudioPlayerStatus.Paused;
+            if (paused) subscription.player.unpause();
+            else subscription.player.pause();
 
-            return { type: "embed", content: `Song ${dispatcher.paused ? "paused" : "resumed"}` };
+            return { content: `Song ${paused ? "resumed" : "paused"}` };
         } catch (e) {
             console.log(e);
             return defaultErr;

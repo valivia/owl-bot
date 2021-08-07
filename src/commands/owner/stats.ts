@@ -31,14 +31,14 @@ module.exports = class extends Command {
 
         console.log(cpuUsage());
         const embed = new MessageEmbed()
-            .addFields(
-                { name: "Users", value: users, inline: true },
-                { name: "Servers", value: client.guilds.cache.size, inline: true },
-                { name: "Channels", value: client.channels.cache.size, inline: true },
-            )
+            .addFields([
+                { name: "Users", value: users.toString(), inline: true },
+                { name: "Servers", value: client.guilds.cache.size.toString(), inline: true },
+                { name: "Channels", value: client.channels.cache.size.toString(), inline: true },
+            ])
             .addField("Memory usage", `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)}MB`, true)
             .addField("Uptime", moment(Date.now() - client.uptime!).fromNow().replace(" ago", ""), true)
-            .addField("Commands", `${client.commands.array().length} loaded modules`, true)
+            .addField("Commands", `${client.commands.size} loaded modules`, true)
             .setFooter(`${author.username} <${author.id}>`, author.avatarURL() as string | undefined)
             .setColor("#FF0000")
             .setTimestamp();

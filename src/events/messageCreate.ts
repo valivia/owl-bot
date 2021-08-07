@@ -65,7 +65,7 @@ export default function messageCreate(client: OwlClient) {
 
             // yeet through command handler.
             const response = await runCommand(user, commandName, args, client, msg);
-            console.log(response);
+
             if (response.disabled) return;
 
             await msg.reply({ embeds: response.embeds, content: response.content });

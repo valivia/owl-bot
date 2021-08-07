@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import { GuildMember, User, Message, Collection, Client } from "discord.js";
+import { GuildMember, User, Message, Collection, Client, Snowflake } from "discord.js";
+import musicService from "../middleware/musicHandler";
 import { Argument, CommandInfo, MsgResponse, Throttling, Permissions } from "./types";
 
 export abstract class Command {
@@ -29,6 +30,7 @@ export abstract class Command {
 }
 
 export class OwlClient extends Client {
+    musicService!: Map<Snowflake, musicService>;
     commands!: OwlCollection<string, Command>;
     db!: PrismaClient;
 }

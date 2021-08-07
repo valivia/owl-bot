@@ -26,16 +26,16 @@ module.exports = class extends Command {
     async run(author: GuildMember): Promise<MsgResponse> {
         try {
             const vc = author.voice.channel;
-            const connection = author.guild.voice?.connection;
-            if (vc === null) return { type: "content", content: "Join a voicechannel first." };
-            if (!connection) return { type: "content", content: "No music is playing." };
-            connection.disconnect();
+            if (vc === null) return { content: "Join a voicechannel first." };
+            const subscription = this.client.musicService.get(author.guild.id);
+            if (!subscription) return { content: "Bot isnt playing" };
+            subscription.stop();
 
             const embed = new MessageEmbed()
                 .setDescription(`**left**`)
                 .setColor(5362138);
 
-            return { type: "embed", content: embed };
+            return { embeds: [embed] };
         } catch (e) {
             console.log(e);
             return defaultErr;

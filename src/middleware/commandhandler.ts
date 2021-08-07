@@ -15,8 +15,8 @@ export async function runCommand(user: GuildMember | User | null, commandName: s
     if (command === undefined) { return { disabled: true, content: "command doesnt exist" }; }
     if (command.guildOnly && !("user" in user)) { return { content: "This command is limited to servers." }; }
     const guild = "user" in user ? user.guild : undefined;
-    if (command.adminOnly && user.id !== env.owner) return { disabled: true, content: "This command is only available for admins" };
-    if (command.disabled && user.id !== env.owner) return { content: "This command is currently disabled." };
+    if (command.adminOnly && user.id !== env.OWNER) return { disabled: true, content: "This command is only available for admins" };
+    if (command.disabled && user.id !== env.OWNER) return { content: "This command is currently disabled." };
 
     if (command.permissions !== undefined && guild) {
         user = user as GuildMember;
@@ -65,7 +65,7 @@ async function argumenthanlder(command: Command, args: string[], client: OwlClie
             case 3: value = input; break;
             case 4: {
                 value = Number(input);
-                if (!Number.isFinite(value)) { return { type: "content", content: "Incorrect command usage, not an integer." }; }
+                if (!Number.isFinite(Number(input)) && arg.required) { return { type: "content", content: "Incorrect command usage, not an integer." }; }
                 break;
             }
             case 5: break;

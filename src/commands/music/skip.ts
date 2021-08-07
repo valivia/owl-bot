@@ -6,23 +6,23 @@ import { argType, MsgResponse } from "../../types/types";
 module.exports = class extends Command {
     constructor(client: OwlClient) {
         super(client, {
-            name: "volume",
+            name: "skip",
             aliases: [""],
-            description: "sets volume",
+            description: "skips song",
             example: "",
             group: "music",
 
             guildOnly: true,
-            adminOnly: true,
+            adminOnly: false,
             slash: false,
 
             args: [
                 {
-                    "type": argType.string,
-                    "name": "volume",
-                    "description": "what volume",
+                    "type": argType.integer,
+                    "name": "songIndex",
+                    "description": "Which song",
                     "default": false,
-                    "required": true,
+                    "required": false,
                 },
             ],
 
@@ -33,15 +33,17 @@ module.exports = class extends Command {
         });
     }
 
-    async run(author: GuildMember, { volume }: { volume: string }, _client: OwlClient): Promise<MsgResponse> {
+    async run(author: GuildMember, { songIndex }: { songIndex: number }, _client: OwlClient): Promise<MsgResponse> {
         try {
             const vc = author.voice.channel;
-            const dispatcher = author.guild.voice?.connection?.dispatcher;
-            if (vc === null) return { type: "content", content: "Join a voicechannel first." };
-            if (!dispatcher) return { type: "content", content: "No music is playing." };
-            dispatcher.setVolume(parseFloat(volume));
+            if (vc === null) return { content: "Join a voicechannel first." };
+            const subscription = this.client.musicService.get(author.guild.id);
+            if (!subscription) return { content: "No music is playing" };
 
-            return { type: "embed", content: `Volume set to ${volume}` };
+            if (!songIndex) subscription.player.stop();
+            else subscription.queue.splice(songIndex - 1, 1);
+
+            return { content: `Song skipped!` };
         } catch (e) {
             console.log(e);
             return defaultErr;
