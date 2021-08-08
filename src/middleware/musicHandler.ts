@@ -31,7 +31,7 @@ class musicService {
                 } else if (this.voiceConnection.rejoinAttempts < 5) {
                     await wait((this.voiceConnection.rejoinAttempts + 1) * 5_000);
                     this.voiceConnection.rejoin();
-                } else {
+                } else if (this.voiceConnection.state.status !== VoiceConnectionStatus.Destroyed) {
                     this.voiceConnection.destroy();
                 }
             } else if (newState.status === VoiceConnectionStatus.Destroyed) {
@@ -70,6 +70,7 @@ class musicService {
     public stop(): void {
         this.queue = [];
         this.player.stop(true);
+        if (this.voiceConnection.state.status !== VoiceConnectionStatus.Destroyed) this.voiceConnection.destroy();
     }
 
     public addToQueue(song: songData): void {

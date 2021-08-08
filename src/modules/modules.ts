@@ -3,6 +3,7 @@ import axios from "axios";
 import { Rcon } from "rcon-client/lib";
 import { RCONLogin } from "../types/types";
 import { Command, OwlClient } from "../types/classes";
+import { YouTubeSearchResults } from "youtube-search";
 
 export async function getMember(client: OwlClient, guildID: string, userID: string): Promise<GuildMember | null> {
     const guild = await client.guilds.fetch(guildID);
@@ -76,6 +77,21 @@ export async function RCONHandler(command: string, login: RCONLogin): Promise<{ 
     return { message: response, code: `${response.startsWith("Added") ? "SUCCESS" : "GENERIC_ERR"}` };
 }
 
+export function getThumbnail(thumbnails: YouTubeSearchResults["thumbnails"]): string {
+    if (thumbnails.high) return thumbnails.high.url;
+    if (thumbnails.medium) return thumbnails.medium.url;
+    if (thumbnails.default) return thumbnails.default.url;
+    return "a";
+}
+
+export function decode(string: string): string {
+    return string.replace(/&apos;/g, "'")
+        .replace(/&quot;/g, "\"")
+        .replace(/&gt;/g, ">")
+        .replace(/&lt;/g, "<")
+        .replace(/&amp;/g, "&")
+        .replace(/&#39;/g, "`");
+}
 /*
 export async function subLoop(client: OwlClient): Promise<void> {
     const db = client.db;
