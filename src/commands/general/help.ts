@@ -2,6 +2,8 @@ import { GuildMember, User, MessageEmbed } from "discord.js";
 import { getCommand } from "../../modules/modules";
 import { Command, OwlClient } from "../../types/classes";
 import { argType, MsgResponse } from "../../types/types";
+import env from "dotenv";
+env.config();
 
 module.exports = class extends Command {
     constructor(client: OwlClient) {
@@ -44,7 +46,7 @@ module.exports = class extends Command {
         if (commandName === undefined) {
             let cmds = "";
             for (const [, { name, description, disabled }] of commands) {
-                if (disabled && author.id !== Options.owner) { continue; }
+                if (disabled && author.id !== process.env.OWNER) { continue; }
                 cmds += `\n**${disabled ? "-" : ""}${name}:** ${description}`;
             }
             const list = new MessageEmbed()
@@ -53,7 +55,7 @@ module.exports = class extends Command {
                     { name: "general commands", value: cmds },
                     { name: "\u200B", value: "\u200B" },
                 )
-                .addField("more info?", `type ${Options.prefix}help (command name), to get more info on a command.`)
+                .addField("more info?", `type ${process.env.PREFIX}help (command name), to get more info on a command.`)
                 .setColor("#FF0000")
                 .setTimestamp();
             // Send list directly if requested from dms.
@@ -79,7 +81,7 @@ module.exports = class extends Command {
             .setTitle(command.name)
             .addField("Description", command.description !== undefined ? command.description : "-")
             .addField("Aliases", alias, true)
-            .addField("Example", command.example !== undefined ? `\`\`${Options.prefix}${command.name} ${command.example}\`\`` : "No example provided.", true)
+            .addField("Example", command.example !== undefined ? `\`\`${process.env.PREFIX}${command.name} ${command.example}\`\`` : "No example provided.", true)
             .addField("cooldown", `${command.throttling !== undefined ? command.throttling.duration : "none"}`)
             .setColor("#FF0000")
             .setTimestamp();
