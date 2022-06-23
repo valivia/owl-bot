@@ -1,3 +1,3 @@
 # Discord bot
-#### 2021 revision
+⚠️ This project has been abandoned and replaced with [Raven Bot](https://github.com/valivia/raven-bot)⚠️
 
